@@ -1,0 +1,263 @@
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background-color: #e6f0ff;
+            /* Light blue background */
+            color: #333;
+        }
+
+        header {
+            background-color: #004aad;
+            /* Deep blue */
+            color: white;
+            padding: 20px;
+            text-align: center;
+            font-size: 2em;
+        }
+
+        .content {
+            padding-top: 20px;
+            /* padding: 10px; */
+            text-align: center;
+        }
+
+        .leftcontent {
+            padding-top: 10px;
+            /* padding: 10px; */
+            text-align: left;
+        }
+
+
+        input[type="date"] {
+            padding: 10px;
+            font-size: 1rem;
+            border: 2px solid #004aad;
+            border-radius: 8px;
+            background-color: #f0f8ff;
+            color: #004aad;
+            outline: none;
+            transition: border-color 0.3s ease-in-out;
+        }
+
+        input[type="date"]:focus {
+            border-color: #002f6c;
+            background-color: #e6f0ff;
+        }
+
+        .submit-button {
+            padding: 12px 24px;
+            background-color: #004aad;
+            color: #fff;
+            font-size: 1rem;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .submit-button:hover {
+            background-color: #003380;
+            transform: translateY(-2px);
+        }
+
+        .submit-button:active {
+            background-color: #00275b;
+            transform: scale(0.98);
+        }
+
+        .custom-blue {
+            background-color: #004aad;
+            color: white;
+            border: none;
+        }
+
+        .custom-blue:hover {
+            background-color: #003380;
+        }
+
+        .col-box {
+            display: inline-block;
+            padding: 6px 12px;
+            margin: 5px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            background-color: #f9f9f9;
+            font-family: Arial, sans-serif;
+        }
+
+        #add_supplier_view {
+            display: none;
+        }
+
+        .form-container {
+            max-width: 500px;
+            margin: 30px auto;
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            background-color: #f9f9f9;
+            font-family: Arial, sans-serif;
+        }
+
+        .form-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            /* space between label and input */
+            margin-bottom: 12px;
+        }
+
+        .form-group label {
+            min-width: 80px;
+            /* adjust as needed */
+            font-weight: bold;
+        }
+
+        .form-group input {
+            flex: 1;
+            padding: 6px 10px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+        }
+
+        .form-group button {
+            margin-top: 10px;
+            padding: 10px 20px;
+            font-size: 15px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+
+        .form-group button:hover {
+            background-color: #0056b3;
+        }
+
+        .dropdownbox {
+            text-align: center;
+            width: 90%;
+            padding: 10px 12px;
+            font-size: 16px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            background-color: #fff;
+            color: #333;
+            box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
+            transition: border-color 0.3s, box-shadow 0.3s;
+            appearance: none;
+            /* Remove default arrow in some browsers */
+            -webkit-appearance: none;
+            -moz-appearance: none;
+        }
+
+        .dropdownbox:focus {
+            border-color: #007BFF;
+            box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.2);
+            outline: none;
+        }
+
+        .form-group-inline {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            /* spacing between label and select */
+            margin-bottom: 10px;
+        }
+
+        .form-group-inline label {
+            min-width: 80px;
+            /* adjust width as needed */
+            font-weight: bold;
+        }
+
+
+        .form-container label {
+            text-align: right;
+            font-weight: bold;
+            padding-top: 6px;
+        }
+
+        .form-row {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .form-row label {
+            width: 200px;
+            /* Set a fixed width for alignment */
+            font-weight: 500;
+            margin-right: 10px;
+        }
+
+        .dropdownboxsmall {
+            flex: 1;
+            padding: 6px;
+            border: 2px solid #004aad;
+            border-radius: 8px;
+            background-color: #f0f8ff;
+            color: #004aad;
+            font-size: 1rem;
+            transition: border-color 0.3s ease-in-out;
+        }
+
+        .dropdownboxsmall:focus {
+            border-color: #002f6c;
+            background-color: #e6f0ff;
+        }
+
+        .input-group {
+            display: flex;
+            gap: 12px;
+            /* space between inputs */
+            flex-wrap: wrap;
+            /* wrap on small screens */
+            justify-content: center;
+            /* center horizontally */
+            margin-top: 10px;
+        }
+
+        .input-group input {
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            min-width: 150px;
+            /* makes all inputs reasonably wide */
+        }
+
+        .container-box {
+            display: inline-block;
+            /* Shrinks to fit content */
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-radius: 10px;
+            background-color: #f8f8f8;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            margin: 20px;
+        }
+
+        table#myTable {
+            width: auto;
+            font-size: 14px;
+            border-collapse: collapse;
+            margin: 10px 0;
+        }
+
+        #myTable th,
+        #myTable td {
+            padding: 4px 8px;
+            text-align: center;
+        }
+
+        #myTable input[type="text"] {
+            width: 100px;
+            padding: 2px 4px;
+            font-size: 13px;
+        }
+
+        #myTable input::placeholder {
+            font-size: 12px;
+        }

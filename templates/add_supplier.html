@@ -1,0 +1,26 @@
+
+<div class="row">
+    <div class="col">
+        <div id="add_supplier" class="form-container">
+            <label for="supplier_name">
+                <input type="text" v-model="supplier_name"  name="supplier_name" placeholder="Enter supplier name" required>
+            </label>
+            <button @click="addNewSupplier" id="add_new_supplier_button" class="btn custom-blue" type="submit">Add Supplier</button>
+        </div>
+    </div>
+
+    <div class="col">
+        <div  class="form-container">
+           <label for="supplier_select">
+                <select id="supplier_select" class="dropdownbox" v-model="supplier_delete">
+                    <option value="" disabled selected>-- Select Supplier --</option>
+                    <option v-for="supplier in suppliers" :key="supplier.id" :value="supplier.id">
+                        [[ supplier.supplier_name ]]
+                    </option>
+                </select>
+             </label>
+            <button @click="supplierDelete"  class="btn custom-blue" type="submit">Delete Supplier</button>
+        </div>
+    </div>
+    
+</div>
