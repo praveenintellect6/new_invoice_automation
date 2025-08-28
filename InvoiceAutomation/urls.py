@@ -24,4 +24,7 @@ urlpatterns = [
     path('add_supplier/',views.add_supplier,name="add_supplier"),
     path('get_suppliers/', views.get_suppliers, name="get_suppliers"),
     path('delete_supplier/', views.delete_supplier, name="delete_supplier"),
+    path('fetch_columns/', views.fetch_columns, name="fetch_columns"),
+    path('add_update_columns/', views.add_update_columns, name="add_update_columns"),
+    path('fetch_column_mapp/',views.fetch_column_mapp,name="fetch_column_mapp"),
 ]

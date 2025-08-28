@@ -2,10 +2,73 @@ from django.shortcuts import render
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from .models import *
+import json
 
-def home_view(request): 
+
+ss=NewSupplier.objects.filter(supplier_name="praveen").values()
+print(ss)
+
+def home_view(request):
     return render(request, "index.html")
 
+@csrf_exempt
+def fetch_column_mapp(request):
+    if request.method == "POST":
+        supplier_id = request.POST.get("supplier_id")
+        if not supplier_id:
+            return JsonResponse({'status': 'error', 'message': 'Missing supplier_id'}, status=400)
+        try:
+            supplier = NewSupplier.objects.get(id=supplier_id)
+            supplier_col=supplier.supplier_col or []
+            print("supplier_col====================>",supplier_col)
+            return JsonResponse(list(supplier_col), safe=False)
+        except NewSupplier.DoesNotExist:
+            return JsonResponse({'status': 'error', 'message': 'Supplier not found'}, status=404)
+    return JsonResponse({'status': 'error', 'message': 'Invalid request method'}, status=405)
+
+@csrf_exempt
+def add_update_columns(request):
+    if request.method == "POST":
+        supplier_id = request.POST.get("supplier_id")
+        supplier_cols_raw = request.POST.get("supplierCols") 
+        print("supplier_cols_raw========================>",supplier_cols_raw)
+
+        if not supplier_id :
+            return JsonResponse({"status": "error", "message": "supplier_id required"}, status=400)
+        
+        try:
+            supplier_cols = json.loads(supplier_cols_raw)
+        except json.JSONDecodeError:
+            return JsonResponse({"status": "error", "message": "Invalid supplierCols format"}, status=400)
+        
+        try:
+            supplier = NewSupplier.objects.get(id=supplier_id)
+        except NewSupplier.DoesNotExist:
+            return JsonResponse({"status": "error", "message": "Supplier not found"}, status=404)
+        
+        supplier.supplier_col = supplier_cols
+        supplier.save()
+        return JsonResponse({
+            "status": "success",
+            "message": "Supplier columns updated successfully",
+            "columns": supplier.supplier_col
+        })
+    return JsonResponse({'status': 'error', 'message': 'Invalid request method'}, status=405)
+
+@csrf_exempt
+def fetch_columns(request):
+    if request.method == "POST":
+        supplier_id = request.POST.get("supplier_id")
+        if not supplier_id:
+            return JsonResponse({'status': 'error', 'message': 'Missing supplier_id'}, status=400)
+        try:
+            supplier = NewSupplier.objects.get(id=supplier_id)
+            supplier_col=supplier.supplier_col or []
+            print("supplier_col====================>",supplier_col)
+            return JsonResponse(list(supplier_col), safe=False)
+        except NewSupplier.DoesNotExist:
+            return JsonResponse({'status': 'error', 'message': 'Supplier not found'}, status=404)
+    return JsonResponse({'status': 'error', 'message': 'Invalid request method'}, status=405)
 
 @csrf_exempt
 def delete_supplier(request):
@@ -21,8 +84,6 @@ def delete_supplier(request):
         except NewSupplier.DoesNotExist:
             return JsonResponse({'status': 'error', 'message': 'Supplier not found'}, status=404)
     return JsonResponse({'status': 'error', 'message': 'Invalid request method'}, status=405)
-
-
 
 @csrf_exempt
 def add_supplier(request):

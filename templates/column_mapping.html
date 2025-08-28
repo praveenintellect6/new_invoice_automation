@@ -1,0 +1,106 @@
+<div class="row">
+    <div class="col">
+    </div>
+    <div class="col">
+        <div class="bg-blue-200 shadow-md p-2 max-w-md w-full mt-2">
+            <label for="supplier_select" class="block mb-3 text-gray-700 font-semibold">
+                        Select Supplier
+            </label>
+
+            <div class="block mb-3">
+                        <select  class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            v-model="supplier_for_col_mapp" @change="supplier_for_col_mapp_onchange"
+                        >
+                            <option value="" disabled selected>-- Select Supplier --</option>
+                            <option 
+                                v-for="supplier in suppliers" 
+                                :key="supplier.id" 
+                                :value="supplier.id"
+                            >
+                                [[ supplier.supplier_name ]]
+                            </option>
+                        </select>
+            </div>
+        </div>
+        <div v-if="supplier_for_col_mapp" class="bg-blue-200 shadow-md p-2 max-w-md w-full mt-2">
+            <div class="ml-5">
+                <table  class="w-full border-collapse" >
+                    <tr class="border-b">
+                        <td class="p-2 font-medium w-1/4">Supplier</td>
+                        <td class="p-2">
+                            <select class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" v-model="supplier_for_col_mapp" @change="supplier_for_col_mapp_onchange">
+                                <option value="" disabled selected>-- Select Supplier --</option>
+                                <option v-for="supplier in suppliers" :key="supplier.id" :value="supplier.id">[[ supplier.supplier_name ]]</option>
+                            </select>
+                        </td>
+                    </tr>
+                    <tr class="border-b">
+                        <td class="p-2 font-medium w-1/4">DATE</td>
+                        <td class="p-2">
+                            <select class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" v-model="supplier_for_col_mapp" @change="supplier_for_col_mapp_onchange">
+                                <option value="" disabled selected>-- Select Supplier --</option>
+                                <option v-for="supplier in suppliers" :key="supplier.id" :value="supplier.id">[[ supplier.supplier_name ]]</option>
+                            </select>
+                        </td>
+                    </tr>
+                    <tr class="border-b">
+                        <td class="p-2 font-medium w-1/4">PART DESCRIPTION</td>
+                        <td class="p-2">
+                            <select class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" v-model="supplier_for_col_mapp" @change="supplier_for_col_mapp_onchange">
+                                <option value="" disabled selected>-- Select Supplier --</option>
+                                <option v-for="supplier in suppliers" :key="supplier.id" :value="supplier.id">[[ supplier.supplier_name ]]</option>
+                            </select>
+                        </td>
+                    </tr>
+                    <tr class="border-b">
+                        <td class="p-2 font-medium w-1/4">PART NUMBER</td>
+                        <td class="p-2">
+                            <select class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" v-model="supplier_for_col_mapp" @change="supplier_for_col_mapp_onchange">
+                                <option value="" disabled selected>-- Select Supplier --</option>
+                                <option v-for="supplier in suppliers" :key="supplier.id" :value="supplier.id">[[ supplier.supplier_name ]]</option>
+                            </select>
+                        </td>
+                    </tr>
+                    <tr class="border-b">
+                        <td class="p-2 font-medium w-1/4">TRADE PRICE</td>
+                        <td class="p-2">
+                            <select class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" v-model="supplier_for_col_mapp" @change="supplier_for_col_mapp_onchange">
+                                <option value="" disabled selected>-- Select Supplier --</option>
+                                <option v-for="supplier in suppliers" :key="supplier.id" :value="supplier.id">[[ supplier.supplier_name ]]</option>
+                            </select>
+                        </td>
+                    </tr>
+                    <tr class="border-b">
+                        <td class="p-2 font-medium w-1/4">TOTAL COUNT</td>
+                        <td class="p-2">
+                            <select class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" v-model="supplier_for_col_mapp" @change="supplier_for_col_mapp_onchange">
+                                <option value="" disabled selected>-- Select Supplier --</option>
+                                <option v-for="supplier in suppliers" :key="supplier.id" :value="supplier.id">[[ supplier.supplier_name ]]</option>
+                            </select>
+                        </td>
+                    </tr>
+                    <tr class="border-b">
+                        <td class="p-2 font-medium w-1/4">PURCHASED COUNT</td>
+                        <td class="p-2">
+                            <select class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" v-model="supplier_for_col_mapp" @change="supplier_for_col_mapp_onchange">
+                                <option value="" disabled selected>-- Select Supplier --</option>
+                                <option v-for="supplier in suppliers" :key="supplier.id" :value="supplier.id">[[ supplier.supplier_name ]]</option>
+                            </select>
+                        </td>
+                    </tr>
+                    <tr class="border-b">
+                        <td class="p-2 font-medium w-1/4">TOTAL PRICE</td>
+                        <td class="p-2">
+                            <select class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" v-model="supplier_for_col_mapp" @change="supplier_for_col_mapp_onchange">
+                                <option value="" disabled selected>-- Select Supplier --</option>
+                                <option v-for="supplier in suppliers" :key="supplier.id" :value="supplier.id">[[ supplier.supplier_name ]]</option>
+                            </select>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+    </div>
+    <div class="col">
+    </div>
+</div>

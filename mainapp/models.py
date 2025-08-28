@@ -1,9 +1,21 @@
 from django.db import models
 
+def default_mapping():
+    return {
+        "Supplier": "",
+        "DATE": "",
+        "PART DESCRIPTION": "",
+        "PART NUMBER": "",
+        "TRADE PRICE": "",
+        "TOTAL COUNT": "",
+        "PURCHASED COUNT": "",
+        "TOTAL PRICE": "",
+    }
+
 class NewSupplier(models.Model):
     supplier_name=models.CharField(max_length=100,unique=True)
     supplier_col=models.JSONField(default=dict, blank=True)
-    supplier_mapp_col=models.JSONField(default=dict, blank=True)
+    supplier_mapp_col=models.JSONField(default=default_mapping, blank=True)
 
 class SingleInvoice(models.Model):
     supplier=models.ForeignKey(NewSupplier, on_delete=models.CASCADE)

@@ -8,7 +8,8 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
-  <link rel="stylesheet" href="static\style.css">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="static/style.css">
   <style>
     body {
       margin: 0;
@@ -77,6 +78,7 @@
   </style>
 </head>
 
+
 <body>
   <div id="app">
     <header>Invoice PDF Extraction</header>
@@ -84,42 +86,53 @@
     <div class="dashboard" >
       <!-- Sidebar Navigation -->
       <div class="sidebar">
-        
-        <button :class="{active: activeTab==='excel'}" @click="activeTab='excel'">
+        <button :class="{active: activeTab==='image'}" @click="activeTab='image'" @mouseover="activeTab='image'">
+            <i class="fas fa-file-excel"></i> Upload Image Invoice
+        </button>
+
+         <button :class="{active: activeTab==='pdf'}" @click="activeTab='pdf'" @mouseover="activeTab='pdf'">
+            <i class="fas fa-file-pdf"></i> Upload PDF Invoice
+        </button>
+
+        <button :class="{active: activeTab==='excel'}" @click="activeTab='excel'" @mouseover="activeTab='excel'">
             <i class="fas fa-file-excel"></i> Upload Excel
         </button>
-
-        <button :class="{active: activeTab==='pdf'}" @click="activeTab='pdf'">
-            <i class="fas fa-file-pdf"></i> Upload PDF
-        </button>
-
+      
         <!-- <button :class="{active: activeTab==='invoices'}" @click="activeTab='invoices'">
           <i class="fas fa-table"></i> Show Invoices
         </button> -->
-        <button :class="{active: activeTab==='month'}" @click="activeTab='month'">
+        <button :class="{active: activeTab==='month'}" @click="activeTab='month'" @mouseover="activeTab='month'">
             <i class="fas fa-calendar-alt"></i> Month Report
         </button>
 
-        <button :class="{active: activeTab==='settings'}" @click="activeTab='settings'">
+        <button :class="{active: activeTab==='settings'}" @click="activeTab='settings'" @mouseover="activeTab='settings'">
             <i class="fas fa-cog"></i> Settings
         </button>
 
-        <button :class="{active: activeTab==='add_new_supplier'}" @click="activeTab='add_new_supplier'">
+        <button :class="{active: activeTab==='add_new_supplier'}" @click="activeTab='add_new_supplier'" @mouseover="activeTab='add_new_supplier'">
             <i class="fas fa-building"></i> Add New Supplier
         </button>
 
-        <button :class="{active: activeTab==='edit_case'}" @click="activeTab='edit_case'">
+        <button :class="{active: activeTab==='edit_case'}" @click="activeTab='edit_case'" @mouseover="activeTab='edit_case'">
             <i class="fas fa-tools"></i> Edit Case
         </button>
 
-        <button :class="{active: activeTab==='column_mapping'}" @click="activeTab='column_mapping'">
+        <button :class="{active: activeTab==='column_mapping'}" @click="activeTab='column_mapping'" @mouseover="activeTab='column_mapping'">
             <i class="fas fa-exchange-alt"></i> Column Mapping
         </button>
-
     </div>
 
       <!-- Main Content -->
       <div class="main-content">
+
+        <!-- Upload Image invoice -->
+        <div v-if="activeTab==='image'">
+          <h4>Upload Image Invoice</h4>
+          <input type="date" v-model="corr_date" class="form-control w-50 mb-3">
+          <input type="file" multiple accept=".xlsx" @change="handleFileUpload" />
+          <button @click="submitFiles" class="submit-button mt-2">Upload Image</button>
+        </div>
+
         <!-- Upload Excel -->
         <div v-if="activeTab==='excel'">
           <h4>Upload Excel Files</h4>
@@ -164,19 +177,17 @@
 
         <!-- add_new_supplier  -->
         <div v-if="activeTab==='add_new_supplier'">
-          <h4>add_new_supplier</h4>
               {% include "add_supplier.html" %}
         </div>
 
         <!-- edit_case -->
         <div v-if="activeTab==='edit_case'">
           <h4>edit_case</h4>
-          
         </div>
 
         <!-- column_mapping -->
         <div v-if="activeTab==='column_mapping'">
-          <h4>column_mapping</h4>
+          {% include "column_mapping.html" %}
             
         </div>
 
@@ -217,6 +228,9 @@
             selling_price_inc_gst: ""
             },
         // column Mapping variables---------------------
+        supplier_for_col_mapp:'',
+
+
         selectedSupplierColumn:'',
         colMap:[],
         colMapFul:[],
@@ -239,10 +253,73 @@
         // add new supplier valiables--------------------
         supplier_name:'',
         supplier_delete:'',
+        newColumn: "",
+        supplierCols: [],
+        supplier_for_col_add:'',
         };
       },
     methods:{
-          // add new supplier functions--------------------
+      //column mapping functions----------------------------
+      async supplier_for_col_mapp_onchange(){
+        try{
+          const baseUrl = window.location.origin;
+          const response = await axios.post(`${baseUrl}/fetch_column_mapp/`,new URLSearchParams({supplier_id : this.supplier_for_col_mapp}),
+        );
+        }
+        catch(error){
+          alert("error");
+        }
+      },
+
+      // add new supplier functions--------------------
+      async supplier_for_col_add_onchange(){
+        try {
+            this.supplierCols=[];
+            const baseUrl = window.location.origin;
+            const response = await axios.post(`${baseUrl}/fetch_columns/`,new URLSearchParams({supplier_id : this.supplier_for_col_add}),
+                {
+                headers: {
+                    "Content-Type": "application/x-www-form-urlencoded"
+                    }
+                }
+          );
+          this.supplierCols.push(...response.data);
+          }
+          catch(error){
+             alert("error");
+          }
+        },
+
+        addColumn() {
+          if (this.newColumn.trim() !== "" && !this.supplierCols.includes(this.newColumn)) {
+              this.supplierCols.push(this.newColumn.trim());
+              this.newColumn = "";
+                }
+          },
+        removeColumn(index) {
+            this.supplierCols.splice(index, 1);
+          },
+        
+        async saveColumns() {
+          const baseUrl = window.location.origin;
+          const response = await axios.post(`${baseUrl}/add_update_columns/`,new URLSearchParams({
+            supplier_id : this.supplier_for_col_add,
+            supplierCols: JSON.stringify(this.supplierCols)
+            }),
+                {
+                headers: {
+                    "Content-Type": "application/x-www-form-urlencoded"
+                    }
+                }
+          );
+
+          if (response.data.status === 'success')
+          {
+            alert("Columns updated successfully!");
+          }
+
+        },
+
         async supplierDelete(){
             const baseUrl = window.location.origin;
             const response = await axios.post(`${baseUrl}/delete_supplier/`,new URLSearchParams({supplier_id : this.supplier_delete}),
