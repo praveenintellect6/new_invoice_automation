@@ -1,0 +1,344 @@
+<div>
+    <div class="row mt-2 bg-blue-200 shadow-md">
+        <!-- First column 30% -->
+        <div class="flex-1 p-4 m-2 ">
+            <label for="supplier_name" class="block mb-3 text-gray-700 font-semibold">
+                Add New Supplier
+            </label>
+            <input type="text" v-model="supplier_name" name="supplier_name" id="supplier_name"
+                placeholder="Enter supplier name" required
+                class="border border-gray-300 rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 mx-auto block" />
+            <button @click="addNewSupplier" type="submit"
+                class="bg-blue-600 text-white rounded-md px-3 py-2 mt-5 shadow hover:bg-blue-700 transition mt-2 block mx-auto">
+                Add Supplier
+            </button>
+        </div>
+
+        <div class="flex-1  p-4 m-2 ">
+            <label class="block mb-3 text-gray-700 font-semibold">
+                Delete Supplier
+            </label>
+            <select
+                class="border border-gray-300 rounded-md px-2 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 mx-auto block"
+                v-model="supplier_delete">
+                <option value="" disabled selected>-- Select Supplier --</option>
+                <option v-for="supplier in suppliers" :key="supplier.id" :value="supplier.id">
+                    [[ supplier.supplier_name ]]
+                </option>
+            </select>
+            <button @click="supplierDelete" type="submit"
+                class="bg-blue-600 text-white px-2 py-2 mt-5 rounded-md shadow hover:bg-red-800 transition mx-auto block">
+                Delete Supplier
+            </button>
+        </div>
+
+        <div class="flex-1 p-4 m-2 ">
+            <div class="flex justify-between items-center w-full">
+                <div class="block text-gray-700 font-semibold">
+                    Edit Case
+                </div>
+            </div>
+            <div class="flex justify-between items-center w-full">
+                <div class="flex-1 p-2 m-1">
+                    <select
+                        class="border border-gray-300 rounded-md px-2 py-2 ml-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        v-model="supplier_edit_case">
+                        <option value="" disabled selected>-- Select Supplier --</option>
+                        <option v-for="supplier in suppliers" :key="supplier.id" :value="supplier.id">
+                            [[ supplier.supplier_name ]]
+                        </option>
+                    </select>
+                </div>
+                <div class="flex-1  p-2 m-1 ">
+                    <div class="flex justify-between items-center">
+                        <label class="text-gray-700 font-semibold">
+                            GST
+                        </label>
+                        <input type="text" v-model="gst_input" placeholder="GST" required class="ml-2 border border-gray-300 rounded-md px-2 py-2 focus:outline-none 
+                                    focus:ring-2 focus:ring-blue-500 w-32" />
+                    </div>
+                </div>
+
+                <div class="flex-1 text-center p-2 m-1 ">
+                    <button @click="addGST"
+                        class="w-32 bg-blue-600 text-white px-2 py-2 rounded-lg shadow hover:bg-blue-700 transition">Set
+                    </button>
+                </div>
+
+            </div>
+            <div class="flex justify-between items-center w-full">
+                <div class="flex-1 text-center p-2 m-1 ">
+                    <span class="text-gray-700 font-semibold">Min</span><br>
+                    <input type="text" v-model="min_case" required class="border border-gray-300 rounded-md px-2 py-2 focus:outline-none 
+                                focus:ring-2 focus:ring-blue-500 w-32" />
+                </div>
+                <div class="flex-1 text-center p-2 m-1 ">
+                    <span class="text-gray-700 font-semibold">Max</span><br>
+                    <input type="text" v-model="max_case" required class="border border-gray-300 rounded-md px-2 py-2 focus:outline-none 
+                                focus:ring-2 focus:ring-blue-500 w-32" />
+                </div>
+
+                <div class="flex-1 text-center p-2 m-1 ">
+                    <span class="text-gray-700 font-semibold">Profit%</span><br>
+                    <input type="text" v-model="profit_Case" required class="border border-gray-300 rounded-md px-2 py-2 focus:outline-none 
+                    focus:ring-2 focus:ring-blue-500 w-32" />
+                </div>
+
+                <div class="flex-1 p-2 m-1 ">
+                    <span></span><br>
+                    <button @click="addCase"
+                        class="w-32 bg-blue-600 text-white px-2 py-2 rounded-lg shadow hover:bg-blue-700 transition">Add
+                    </button>
+                </div>
+            </div>
+            <div class="flex justify-between items-center w-full" v-for="(row, index) in add_case_list" :key="index">
+                <div class="flex-1 text-center p-2 m-1 ">
+                    <input type="text" v-model="row[0]"
+                        class="w-32 bg-gray-100 px-4 py-2 rounded-lg text-gray-700 font-medium focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                </div>
+                <div class="flex-1 text-center p-2 m-1 ">
+                    <input type="text" v-model="row[1]"
+                        class="w-32 bg-gray-100 px-4 py-2 rounded-lg text-gray-700 font-medium focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                </div>
+                <div class="flex-1 text-center p-2 m-1 ">
+                    <input type="text" v-model="row[2]"
+                        class="w-32 bg-gray-100 px-4 py-2 rounded-lg text-gray-700 font-medium focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                </div>
+                <div class="flex-1 text-center p-2 m-1 ">
+                    <button @click="remove_addCase(index)" class="text-red-600 hover:text-red-800 font-bold">
+                        ✕
+                    </button>
+                </div>
+            </div>
+            <div class="flex justify-between items-center w-full">
+                <div class="flex-1 text-right p-2 m-1 ">
+                    <button @click="saveCase"
+                            class="w-32 bg-blue-600 text-white font-medium py-2 px-4 rounded-lg shadow hover:bg-green-700 transition">
+                            Save
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
+
+    <!-- Second column 30% -->
+    <!-- <div class="col bg-blue-200 shadow-md p-2 max-w-md w-full mt-2 ml-2">
+            <label class="block mb-3 text-gray-700 font-semibold">
+                Delete Supplier
+            </label>
+            <select
+                class="border border-gray-300 rounded-md px-2 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 mx-auto block"
+                v-model="supplier_delete">
+                <option value="" disabled selected>-- Select Supplier --</option>
+                <option v-for="supplier in suppliers" :key="supplier.id" :value="supplier.id">
+                    [[ supplier.supplier_name ]]
+                </option>
+            </select>
+            <button @click="supplierDelete" type="submit"
+                class="bg-blue-600 text-white px-2 py-2 mt-2 rounded-md shadow hover:bg-red-800 transition mx-auto block">
+                Delete Supplier
+            </button>
+        </div> -->
+
+    <!-- Third column 40% -->
+    <!-- <div class="col bg-blue-200 shadow-md p-2 mt-2 ml-2">
+            <div class="block mb-3 text-gray-700 font-semibold">
+                Edit Case
+            </div>
+            <div class="flex justify-between items-center w-full">
+                <div class="flex-1 text-center p-4 m-2 ">
+                    <select
+                        class="border border-gray-300 rounded-md px-2 py-2 ml-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        v-model="supplier_edit_case">
+                        <option value="" disabled selected>-- Select Supplier --</option>
+                        <option v-for="supplier in suppliers" :key="supplier.id" :value="supplier.id">
+                            [[ supplier.supplier_name ]]
+                        </option>
+                    </select>
+                </div>
+                <div class="flex items-center p-4 m-2">
+                    <label for="gst_input" class="text-gray-700 font-semibold mr-3">
+                        GST
+                    </label>
+                    <input type="text" v-model="gst_input" id="gst_input" placeholder="GST" required class="border border-gray-300 rounded-md px-2 py-2 focus:outline-none 
+                    focus:ring-2 focus:ring-blue-500 w-32" />
+                </div>
+                <div class="flex-1 text-center p-4 m-2 ">
+                    <button @click="addColumn"
+                        class="col w-32 bg-blue-600 text-white px-2 py-2 rounded-lg shadow hover:bg-blue-700 transition">Set</button>
+                </div>
+            </div>
+            <div class="flex justify-between items-start w-full">
+                <div class="flex-1 text-center p-4 m-2">
+                    <span class="text-gray-700 font-semibold">Min</span><br>
+                    <input type="text" v-model="gst_input" id="gst_input" required 
+                        class="border border-gray-300 rounded-md px-2 py-2 focus:outline-none 
+                                focus:ring-2 focus:ring-blue-500 w-32" />
+                </div>
+                <div class="flex-1 text-center p-4 m-2">
+                    <span class="text-gray-700 font-semibold">Max</span><br>
+                    <input type="text" v-model="gst_input" id="gst_input" required 
+                        class="border border-gray-300 rounded-md px-2 py-2 focus:outline-none 
+                                focus:ring-2 focus:ring-blue-500 w-32" />
+                </div>
+                <div class="flex-1 text-center p-4 m-2">
+                    <span class="text-gray-700 font-semibold">Profit%</span><br>
+                    <input type="text" v-model="gst_input" id="gst_input" required 
+                        class="border border-gray-300 rounded-md px-2 py-2 focus:outline-none 
+                                focus:ring-2 focus:ring-blue-500 w-32" />
+                </div>
+                <div class="flex-1 text-center p-4 m-2">
+                    <span></span><br>
+                    <button @click="addColumn"
+                        class="col w-32 bg-blue-600 text-white px-2 py-2 rounded-lg shadow hover:bg-blue-700 transition">Add
+                    </button>
+                </div>
+            </div>
+        </div> -->
+</div>
+
+<!---------------------------------------- edit column part --->
+
+<div class="row mt-4 bg-blue-200 shadow-md">
+    <label for="supplier_select" class="block mt-3 text-gray-700 font-semibold">
+        Edit Columns
+    </label>
+
+    <div class="flex justify-between items-center w-full">
+        <div class="flex-1 text-center p-4 m-2 "></div>
+        <div class="flex-1 text-center p-4 m-2">
+            <select id="supplier_select"
+                class="border border-gray-300 rounded-lg px-2 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                v-model="supplier_for_col_add" @change="supplier_for_col_add_onchange">
+                <option value="" disabled selected>-- Select Supplier --</option>
+                <option v-for="supplier in suppliers" :key="supplier.id" :value="supplier.id">
+                    [[ supplier.supplier_name ]]
+                </option>
+            </select>
+        </div>
+        <div class="flex-1 text-center p-4 m-2"></div>
+    </div>
+
+    <div class="flex justify-between items-center w-full">
+        <div class="flex-1 text-center p-2 m-1 "><span class="text-gray-700 font-semibold">Supplier Columns</span></div>
+        <div class="flex-1 text-center p-2 m-1 "><span class="text-gray-700 font-semibold">Purchase Report
+                Columns</span></div>
+        <div class="flex-1 text-center p-2 m-1 "><span class="text-gray-700 font-semibold">Calculation</span></div>
+        <div class="flex-1 text-center p-2 m-1 "></div>
+    </div>
+
+    <div class="flex justify-between items-center w-full">
+        <div class="flex-1 text-center p-2 m-1 "> <input v-model="supplier_col_name" type="text"
+                placeholder="Enter supplier column"
+                class="flex-1 border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+        </div>
+        <div class="flex-1 text-center p-2 m-1 "> <input v-model="purchase_report_col_name" type="text"
+                placeholder="Enter Purchase Report column"
+                class="flex-1 border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+        </div>
+        <div class="flex-1 text-center p-2 m-1 "> <input v-model="calculation" type="text"
+                placeholder="Enter Calculation"
+                class="flex-1 border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+        </div>
+        <div class="flex-1 text-left p-2 m-1 "> <button @click="add_columns"
+                class="bg-blue-600 text-white px-4 py-2 rounded-lg shadow hover:bg-blue-700 transition">
+                Add</button>
+        </div>
+    </div>
+
+    <div class="flex justify-between items-center w-full" v-for="(row, index) in edit_column_list" :key="index">
+        <div class="flex-1 text-center p-2 m-1 ">
+            <input type="text" v-model="row[0]"
+                class="w-64 bg-gray-100 px-4 py-2 rounded-lg text-gray-700 font-medium focus:outline-none focus:ring-2 focus:ring-blue-500" />
+        </div>
+        <div class="flex-1 text-center p-2 m-1 ">
+            <input type="text" v-model="row[1]"
+                class="w-64 bg-gray-100 px-4 py-2 rounded-lg text-gray-700 font-medium focus:outline-none focus:ring-2 focus:ring-blue-500" />
+        </div>
+        <div class="flex-1 text-center p-2 m-1 ">
+            <input type="text" v-model="row[2]"
+                class="w-64 bg-gray-100 px-4 py-2 rounded-lg text-gray-700 font-medium focus:outline-none focus:ring-2 focus:ring-blue-500" />
+        </div>
+        <div class="flex-1 p-2 m-1 ">
+            <button @click="remove_add_columns(index)" class="text-red-600 hover:text-red-800 font-bold">
+                ✕
+            </button>
+        </div>
+    </div>
+
+    <div class="flex justify-between items-center w-full">
+        <div class="flex-1 text-center p-2 m-1 "></div>
+        <div class="flex-1 text-center p-2 m-1 "></div>
+        <div class="flex-1 text-center p-2 m-1 "></div>
+        <div class="flex-1 text-left  p-2 m-1"><button @click="saveEditedColumns"
+                class="bg-blue-600 text-white font-medium py-2 px-4 rounded-lg shadow hover:bg-green-700 transition">
+                Save
+            </button>
+        </div>
+    </div>
+</div>
+
+
+
+<div class="mt-5 justify-between items-center w-full">
+    <span></span>
+</div>
+<!-- first row close -->
+
+<!-- <div class="row mt-2">
+        <div class="col bg-blue-200 shadow-md p-2 mt-2">
+            <label for="supplier_select" class="block mb-3 text-gray-700 font-semibold">
+                Edit Columns
+            </label>
+
+            <div class="row flex justify-center">
+                <div class="col"></div>
+                <div class="col">
+                    <select id="supplier_select"
+                        class="border border-gray-300 rounded-lg px-2 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        v-model="supplier_for_col_add" @change="supplier_for_col_add_onchange">
+                        <option value="" disabled selected>-- Select Supplier --</option>
+                        <option v-for="supplier in suppliers" :key="supplier.id" :value="supplier.id">
+                            [[ supplier.supplier_name ]]
+                        </option>
+                    </select>
+                </div>
+                <div class="col"></div>
+            </div>
+
+            <div class="row flex justify-center">
+                <div class="col"><span class="text-gray-700 font-semibold">Supplier Columns</span><br></div>
+                <div class="col"><span class="text-gray-700 font-semibold">Purchase Report Columns</span><br></div>
+                <div class="col"><span class="text-gray-700 font-semibold">Calculation</span><br></div>
+                <div class="col"><span class="text-gray-700 font-semibold"></span><br></div>
+            </div>
+
+   
+            <div class="flex gap-2 mb-4">
+                <input v-model="newColumn" type="text" placeholder="Enter column name"
+                    class="flex-1 border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                <button @click="addColumn"
+                    class="bg-blue-600 text-white px-4 py-2 rounded-lg shadow hover:bg-blue-700 transition">Add</button>
+            </div>
+
+   
+            <ul class="space-y-2">
+                <li v-for="(col, index) in supplierCols" :key="index"
+                    class="flex justify-between items-center bg-gray-100 px-4 py-2 rounded-lg">
+                    <span class="text-gray-700 font-medium">[[ col ]]</span>
+                    <button @click="removeColumn(index)" class="text-red-600 hover:text-red-800 font-bold">
+                        ✕
+                    </button>
+                </li>
+            </ul>
+          
+            <button @click="saveColumns"
+                class="mt-6 w-full bg-green-600 text-white font-medium py-2 px-4 rounded-lg shadow hover:bg-green-700 transition">
+                Save Columns
+            </button>
+        </div>
+    </div>
+</div> -->

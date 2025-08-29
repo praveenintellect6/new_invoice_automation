@@ -11,6 +11,9 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="static/style.css">
   <style>
+    html {
+      overflow-y: hidden; /* disables vertical scrollbar */
+    }
     body {
       margin: 0;
       font-family: Arial, sans-serif;
@@ -97,7 +100,6 @@
         <button :class="{active: activeTab==='excel'}" @click="activeTab='excel'" @mouseover="activeTab='excel'">
             <i class="fas fa-file-excel"></i> Upload Excel
         </button>
-      
         <!-- <button :class="{active: activeTab==='invoices'}" @click="activeTab='invoices'">
           <i class="fas fa-table"></i> Show Invoices
         </button> -->
@@ -109,17 +111,17 @@
             <i class="fas fa-cog"></i> Settings
         </button>
 
-        <button :class="{active: activeTab==='add_new_supplier'}" @click="activeTab='add_new_supplier'" @mouseover="activeTab='add_new_supplier'">
+        <!-- <button :class="{active: activeTab==='add_new_supplier'}" @click="activeTab='add_new_supplier'" @mouseover="activeTab='add_new_supplier'">
             <i class="fas fa-building"></i> Add New Supplier
-        </button>
+        </button> -->
 
-        <button :class="{active: activeTab==='edit_case'}" @click="activeTab='edit_case'" @mouseover="activeTab='edit_case'">
+        <!-- <button :class="{active: activeTab==='edit_case'}" @click="activeTab='edit_case'" @mouseover="activeTab='edit_case'">
             <i class="fas fa-tools"></i> Edit Case
-        </button>
+        </button> -->
 
-        <button :class="{active: activeTab==='column_mapping'}" @click="activeTab='column_mapping'" @mouseover="activeTab='column_mapping'">
+        <!-- <button :class="{active: activeTab==='column_mapping'}" @click="activeTab='column_mapping'" @mouseover="activeTab='column_mapping'">
             <i class="fas fa-exchange-alt"></i> Column Mapping
-        </button>
+        </button> -->
     </div>
 
       <!-- Main Content -->
@@ -175,11 +177,6 @@
           </form> -->
         </div>
 
-        <!-- add_new_supplier  -->
-        <div v-if="activeTab==='add_new_supplier'">
-              {% include "add_supplier.html" %}
-        </div>
-
         <!-- edit_case -->
         <div v-if="activeTab==='edit_case'">
           <h4>edit_case</h4>
@@ -193,7 +190,7 @@
 
         <!-- Settings -->
         <div v-if="activeTab==='settings'">
-         
+           {% include "settings.html" %}
         </div>
         
       </div>
@@ -206,7 +203,7 @@
       delimiters: ['[[', ']]'],
       data() {
         return {
-        //  main page variables--------------------------
+        //  main page variables-------------------------
         activeTab: 'excel',
         invoice_list: [],
         files: [],
@@ -230,7 +227,6 @@
         // column Mapping variables---------------------
         supplier_for_col_mapp:'',
 
-
         selectedSupplierColumn:'',
         colMap:[],
         colMapFul:[],
@@ -250,16 +246,63 @@
             gst_col:'',
             selling_price_inc_gst_col:'',
         },
-        // add new supplier valiables--------------------
+
+        // add new supplier valiables---------------------------
         supplier_name:'',
         supplier_delete:'',
-        newColumn: "",
+        newColumn: '',
         supplierCols: [],
         supplier_for_col_add:'',
+
+        //new edit columns variables----------------------------
+        supplier_col_name:'',
+        purchase_report_col_name:'',
+        calculation:'',
+        edit_column_list:[],
+
+        //new edit case variables-------------------------------
+        supplier_edit_case:'',
+        min_case:'',
+        max_case:'',
+        profit_Case:'',
+        add_case_list:[],
+        gst_input:'',
         };
+
       },
     methods:{
-      //column mapping functions----------------------------
+      //new edit case methods-----------------------------------
+      async saveCase(){
+         alert(JSON.stringify(this.add_case_list, null, 2));
+      },
+      async addGST(){
+        alert(this.gst_input);
+      },
+
+      async remove_addCase(index){
+        this.add_case_list.splice(index, 1);
+      },
+
+      async addCase(){
+        this.add_case_list.push([this.min_case,this.max_case,this.profit_Case]);
+        this.min_case='';
+        this.max_case='';
+        this.profit_Case='';
+      },
+      //new edit columns methods--------------------------------
+      async saveEditedColumns(){
+       alert(JSON.stringify(this.edit_column_list, null, 2));
+      },
+      async remove_add_columns(index){
+          this.edit_column_list.splice(index,1);
+      },
+      async add_columns(){
+        this.edit_column_list.push([this.supplier_col_name,this.purchase_report_col_name,this.calculation]);
+        this.supplier_col_name='';
+        this.purchase_report_col_name='';
+        this.calculation='';
+      },
+      //column mapping functions--------------------------------
       async supplier_for_col_mapp_onchange(){
         try{
           const baseUrl = window.location.origin;
@@ -270,8 +313,7 @@
           alert("error");
         }
       },
-
-      // add new supplier functions--------------------
+      // add new supplier functions-----------------------------
       async supplier_for_col_add_onchange(){
         try {
             this.supplierCols=[];
@@ -296,6 +338,7 @@
               this.newColumn = "";
                 }
           },
+
         removeColumn(index) {
             this.supplierCols.splice(index, 1);
           },
