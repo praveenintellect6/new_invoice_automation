@@ -10,11 +10,16 @@ def default_mapping():
         "TOTAL COUNT": "",
         "PURCHASED COUNT": "",
         "TOTAL PRICE": "",
-    }
+        "ACTUAL PRICE": "",
+        "PROFIT%":"",
+        "SELLING PRICE(Exc.GST)":"",
+        "GST":"",
+        "SELLING PRICE(Inc.GST)":"",
+        }
 
 class NewSupplier(models.Model):
     supplier_name=models.CharField(max_length=100,unique=True)
-    supplier_col=models.JSONField(default=dict, blank=True)
+    supplier_col=models.JSONField(default=list, blank=True)
     supplier_mapp_col=models.JSONField(default=default_mapping, blank=True)
 
 class SingleInvoice(models.Model):
@@ -37,4 +42,8 @@ class PurchaseReport(models.Model):
     selling_price_exc_gst=models.CharField(max_length=10)
     gst=models.CharField(max_length=10)
     selling_price_inc_gst=models.CharField(max_length=10)
+
+class ColumnEditingState(models.Model):
+    supplier=models.ForeignKey(NewSupplier, on_delete=models.CASCADE)
+    column_state=models.JSONField(default=list, blank=True)
 

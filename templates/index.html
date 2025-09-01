@@ -12,8 +12,10 @@
   <link rel="stylesheet" href="static/style.css">
   <style>
     html {
-      overflow-y: hidden; /* disables vertical scrollbar */
+      overflow-y: hidden;
+      /* disables vertical scrollbar */
     }
+
     body {
       margin: 0;
       font-family: Arial, sans-serif;
@@ -79,36 +81,40 @@
       background-color: #003380;
     }
   </style>
+
 </head>
 
 
 <body>
   <div id="app">
-    <header>Invoice PDF Extraction</header>
+    <header class="text-left font-bold text-xl">
+      Invoice PDF Extraction
+    </header>
 
-    <div class="dashboard" >
+    <div class="dashboard">
       <!-- Sidebar Navigation -->
       <div class="sidebar">
         <button :class="{active: activeTab==='image'}" @click="activeTab='image'" @mouseover="activeTab='image'">
-            <i class="fas fa-file-excel"></i> Upload Image Invoice
+          <i class="fas fa-file-excel"></i> Upload Image Invoice
         </button>
 
-         <button :class="{active: activeTab==='pdf'}" @click="activeTab='pdf'" @mouseover="activeTab='pdf'">
-            <i class="fas fa-file-pdf"></i> Upload PDF Invoice
+        <button :class="{active: activeTab==='pdf'}" @click="activeTab='pdf'" @mouseover="activeTab='pdf'">
+          <i class="fas fa-file-pdf"></i> Upload PDF Invoice
         </button>
 
         <button :class="{active: activeTab==='excel'}" @click="activeTab='excel'" @mouseover="activeTab='excel'">
-            <i class="fas fa-file-excel"></i> Upload Excel
+          <i class="fas fa-file-excel"></i> Upload Excel
         </button>
         <!-- <button :class="{active: activeTab==='invoices'}" @click="activeTab='invoices'">
           <i class="fas fa-table"></i> Show Invoices
         </button> -->
         <button :class="{active: activeTab==='month'}" @click="activeTab='month'" @mouseover="activeTab='month'">
-            <i class="fas fa-calendar-alt"></i> Month Report
+          <i class="fas fa-calendar-alt"></i> Month Report
         </button>
 
-        <button :class="{active: activeTab==='settings'}" @click="activeTab='settings'" @mouseover="activeTab='settings'">
-            <i class="fas fa-cog"></i> Settings
+        <button :class="{active: activeTab==='settings'}" @click="activeTab='settings'"
+          @mouseover="activeTab='settings'">
+          <i class="fas fa-cog"></i> Settings
         </button>
 
         <!-- <button :class="{active: activeTab==='add_new_supplier'}" @click="activeTab='add_new_supplier'" @mouseover="activeTab='add_new_supplier'">
@@ -122,7 +128,7 @@
         <!-- <button :class="{active: activeTab==='column_mapping'}" @click="activeTab='column_mapping'" @mouseover="activeTab='column_mapping'">
             <i class="fas fa-exchange-alt"></i> Column Mapping
         </button> -->
-    </div>
+      </div>
 
       <!-- Main Content -->
       <div class="main-content">
@@ -185,14 +191,14 @@
         <!-- column_mapping -->
         <div v-if="activeTab==='column_mapping'">
           {% include "column_mapping.html" %}
-            
+
         </div>
 
         <!-- Settings -->
         <div v-if="activeTab==='settings'">
-           {% include "settings.html" %}
+          {% include "settings.html" %}
         </div>
-        
+
       </div>
     </div>
   </div>
@@ -203,19 +209,19 @@
       delimiters: ['[[', ']]'],
       data() {
         return {
-        //  main page variables-------------------------
-        activeTab: 'excel',
-        invoice_list: [],
-        files: [],
-        pdfFiles: [],
-        corr_date: "",
-        selectedMonth: "",
-        //  editcase  variables-------------------------
-        suppliers:[],
-        selectedSupplier:'',
-        case_table_body:[],
-        newCase: {
-            supplier_id:"",
+          //  main page variables-------------------------
+          activeTab: 'excel',
+          invoice_list: [],
+          files: [],
+          pdfFiles: [],
+          corr_date: "",
+          selectedMonth: "",
+          //  editcase variables-------------------------
+          suppliers: [],
+          selectedSupplier: '',
+          case_table_body: [],
+          newCase: {
+            supplier_id: "",
             minvalue: "",
             maxvalue: "",
             actual_price: "",
@@ -223,205 +229,248 @@
             selling_price_exc_gst: "",
             gst: "",
             selling_price_inc_gst: ""
-            },
-        // column Mapping variables---------------------
-        supplier_for_col_mapp:'',
+          },
+          // column Mapping variables---------------------
+          supplier_for_col_mapp: '',
 
-        selectedSupplierColumn:'',
-        colMap:[],
-        colMapFul:[],
-        ColCase:{
-            supplierid:'',
-            supplier_col:'',
-            date_col:'',
-            part_description_col:'',
-            part_number_col:'',
-            trade_price_col:'',
-            total_count_col:'',
-            purchase_count_col:'',
-            total_price_col:'',
-            actual_price_col:'',
-            profit_col:'',
-            selling_price_exc_gst_col:'',
-            gst_col:'',
-            selling_price_inc_gst_col:'',
-        },
+          selectedSupplierColumn: '',
+          colMap: [],
+          colMapFul: [],
+          ColCase: {
+            supplierid: '',
+            supplier_col: '',
+            date_col: '',
+            part_description_col: '',
+            part_number_col: '',
+            trade_price_col: '',
+            total_count_col: '',
+            purchase_count_col: '',
+            total_price_col: '',
+            actual_price_col: '',
+            profit_col: '',
+            selling_price_exc_gst_col: '',
+            gst_col: '',
+            selling_price_inc_gst_col: '',
+          },
 
-        // add new supplier valiables---------------------------
-        supplier_name:'',
-        supplier_delete:'',
-        newColumn: '',
-        supplierCols: [],
-        supplier_for_col_add:'',
+          // add new supplier valiables---------------------------
+          supplier_name: '',
+          supplier_delete: '',
+          newColumn: '',
+          supplierCols: [],
+          supplier_for_col_add: '',
 
-        //new edit columns variables----------------------------
-        supplier_col_name:'',
-        purchase_report_col_name:'',
-        calculation:'',
-        edit_column_list:[],
+          //new edit columns variables----------------------------
+          supplier_col_name: '',
+          purchase_report_col_name: '',
+          calculation: '',
+          edit_column_list: [],
+          toggleState1: false,
+          toggleState2: false,
+          mapping_columns: [],
 
-        //new edit case variables-------------------------------
-        supplier_edit_case:'',
-        min_case:'',
-        max_case:'',
-        profit_Case:'',
-        add_case_list:[],
-        gst_input:'',
+          //new edit case variables-------------------------------
+          supplier_edit_case: '',
+          min_case: '',
+          max_case: '',
+          profit_Case: '',
+          add_case_list: [],
+          gst_input: '',
         };
 
       },
-    methods:{
-      //new edit case methods-----------------------------------
-      async saveCase(){
-         alert(JSON.stringify(this.add_case_list, null, 2));
-      },
-      async addGST(){
-        alert(this.gst_input);
-      },
+      methods: {
+        //new edit case methods-----------------------------------
+        async saveCase() {
+          alert(JSON.stringify(this.add_case_list, null, 2));
+        },
+        async addGST() {
+          alert(this.gst_input);
+        },
 
-      async remove_addCase(index){
-        this.add_case_list.splice(index, 1);
-      },
+        async remove_addCase(index) {
+          this.add_case_list.splice(index, 1);
+        },
 
-      async addCase(){
-        this.add_case_list.push([this.min_case,this.max_case,this.profit_Case]);
-        this.min_case='';
-        this.max_case='';
-        this.profit_Case='';
-      },
-      //new edit columns methods--------------------------------
-      async saveEditedColumns(){
-       alert(JSON.stringify(this.edit_column_list, null, 2));
-      },
-      async remove_add_columns(index){
-          this.edit_column_list.splice(index,1);
-      },
-      async add_columns(){
-        this.edit_column_list.push([this.supplier_col_name,this.purchase_report_col_name,this.calculation]);
-        this.supplier_col_name='';
-        this.purchase_report_col_name='';
-        this.calculation='';
-      },
-      //column mapping functions--------------------------------
-      async supplier_for_col_mapp_onchange(){
-        try{
-          const baseUrl = window.location.origin;
-          const response = await axios.post(`${baseUrl}/fetch_column_mapp/`,new URLSearchParams({supplier_id : this.supplier_for_col_mapp}),
-        );
-        }
-        catch(error){
-          alert("error");
-        }
-      },
-      // add new supplier functions-----------------------------
-      async supplier_for_col_add_onchange(){
-        try {
-            this.supplierCols=[];
-            const baseUrl = window.location.origin;
-            const response = await axios.post(`${baseUrl}/fetch_columns/`,new URLSearchParams({supplier_id : this.supplier_for_col_add}),
-                {
-                headers: {
-                    "Content-Type": "application/x-www-form-urlencoded"
-                    }
-                }
-          );
-          this.supplierCols.push(...response.data);
+        async addCase() {
+          this.add_case_list.push([this.min_case, this.max_case, this.profit_Case]);
+          this.min_case = '';
+          this.max_case = '';
+          this.profit_Case = '';
+        },
+
+        //new edit columns methods--------------------------------
+        async saveEditedColumns() {
+          if (this.supplier_for_col_add === ''){
+            alert("please select a supplier");
           }
-          catch(error){
-             alert("error");
+          const baseUrl = window.location.origin;
+          alert(this.supplier_for_col_add);
+          try {
+            const response = await axios.post(`${baseUrl}/save_edited_columns/`,
+              new URLSearchParams({
+                supplier_id: this.supplier_for_col_add,
+                edit_column_list: JSON.stringify(this.edit_column_list)
+              }),
+              {
+                headers: { "Content-Type": "application/x-www-form-urlencoded" }
+              }
+            );
+
+            if (response.data.status === 'success') {
+              alert("edited columns send!");
+            }
+
+          } catch (error) {
+            console.error("Error sending data:", error);
+          }
+        },
+
+        async remove_add_columns(index) {
+          this.edit_column_list.splice(index, 1);
+        },
+
+        async add_columns() {
+          this.edit_column_list.push([this.supplier_col_name, this.purchase_report_col_name, this.calculation]);
+          this.supplier_col_name = '';
+          this.purchase_report_col_name = '';
+          this.calculation = '';
+        },
+
+        //column mapping functions--------------------------------
+        async supplier_for_col_mapp_onchange() {
+          try {
+            const baseUrl = window.location.origin;
+            const response = await axios.post(`${baseUrl}/fetch_column_mapp/`, new URLSearchParams({ supplier_id: this.supplier_for_col_mapp }),
+            );
+          }
+          catch (error) {
+            alert("error");
+          }
+        },
+
+        // add new supplier functions-----------------------------
+        async supplier_for_col_add_onchange() {
+          try {
+            this.supplierCols = [];
+            const baseUrl = window.location.origin;
+            const response = await axios.post(`${baseUrl}/fetch_columns/`, new URLSearchParams({ supplier_id: this.supplier_for_col_add }),
+              {
+                headers: {
+                  "Content-Type": "application/x-www-form-urlencoded"
+                }
+              }
+            );
+
+            // this.supplierCols.push(...response.data);
+            if (response.data.status === 'success') {
+              this.mapping_columns = response.data.mapping_columns;
+            }
+
+          }
+          catch (error) {
+            alert("error");
           }
         },
 
         addColumn() {
           if (this.newColumn.trim() !== "" && !this.supplierCols.includes(this.newColumn)) {
-              this.supplierCols.push(this.newColumn.trim());
-              this.newColumn = "";
-                }
-          },
+            this.supplierCols.push(this.newColumn.trim());
+            this.newColumn = "";
+          }
+        },
 
         removeColumn(index) {
-            this.supplierCols.splice(index, 1);
-          },
-        
+          this.supplierCols.splice(index, 1);
+        },
+
         async saveColumns() {
           const baseUrl = window.location.origin;
-          const response = await axios.post(`${baseUrl}/add_update_columns/`,new URLSearchParams({
-            supplier_id : this.supplier_for_col_add,
+          const response = await axios.post(`${baseUrl}/add_update_columns/`, new URLSearchParams({
+            supplier_id: this.supplier_for_col_add,
             supplierCols: JSON.stringify(this.supplierCols)
-            }),
-                {
-                headers: {
-                    "Content-Type": "application/x-www-form-urlencoded"
-                    }
-                }
+          }),
+            {
+              headers: {
+                "Content-Type": "application/x-www-form-urlencoded"
+              }
+            }
           );
 
-          if (response.data.status === 'success')
-          {
+          if (response.data.status === 'success') {
             alert("Columns updated successfully!");
           }
 
         },
 
-        async supplierDelete(){
-            const baseUrl = window.location.origin;
-            const response = await axios.post(`${baseUrl}/delete_supplier/`,new URLSearchParams({supplier_id : this.supplier_delete}),
-                {
-                headers: {
-                    "Content-Type": "application/x-www-form-urlencoded"
-                    }
-                }
-            );
-            if (response.data.status === 'success')
+        async supplierDelete() {
+          if (!this.supplier_delete) {
+            alert("Please select a supplier first.");
+            return;
+          }
+
+          // ✅ Ask for confirmation
+          const confirmed = window.confirm("Are you sure you want to delete this supplier?");
+          if (!confirmed) {
+            return; // stop if user clicked "Cancel"
+          }
+
+          const baseUrl = window.location.origin;
+          const response = await axios.post(`${baseUrl}/delete_supplier/`, new URLSearchParams({ supplier_id: this.supplier_delete }),
             {
-              alert("Supplier Deleted successfully!");
-               this.fetch_supplier(); 
+              headers: {
+                "Content-Type": "application/x-www-form-urlencoded"
+              }
             }
-            else{
-              alert("Error!");
-            }
+          );
+          if (response.data.status === 'success') {
+            alert("Supplier Deleted successfully!");
+            this.fetch_supplier();
+          }
+          else {
+            alert("Error!");
+          }
         },
 
-        async addNewSupplier(){
+        async addNewSupplier() {
           const baseUrl = window.location.origin;
           const response = await axios.post(
-              `${baseUrl}/add_supplier/`,new URLSearchParams({supplier_name : this.supplier_name}),
-                {
-                headers: {
-                    "Content-Type": "application/x-www-form-urlencoded"
-                    }
-                }
-            );
-            if (response.data.status === 'success')
+            `${baseUrl}/add_supplier/`, new URLSearchParams({ supplier_name: this.supplier_name }),
             {
-              alert("Supplier added successfully!");
-              this.fetch_supplier(); 
+              headers: {
+                "Content-Type": "application/x-www-form-urlencoded"
+              }
             }
-           else {
-               alert("error!");
-            }
+          );
+          if (response.data.status === 'success') {
+            alert("Supplier added successfully!");
+            this.fetch_supplier();
+          }
+          else {
+            alert("error!");
+          }
         },
 
-        async fetch_supplier(){
-             try{
-                    const baseUrl = window.location.origin;
-                    const response = await axios.get(`${baseUrl}/get_suppliers/`);
-                    this.suppliers = response.data;
+        async fetch_supplier() {
+          try {
+            const baseUrl = window.location.origin;
+            const response = await axios.get(`${baseUrl}/get_suppliers/`);
+            this.suppliers = response.data;
 
-                } catch (error) {
-                    console.error("Error fetching suppliers:", error);
-                }
+          } catch (error) {
+            console.error("Error fetching suppliers:", error);
+          }
         },
       },
-    mounted() {
-        this.fetch_supplier(); 
+      mounted() {
+        this.fetch_supplier();
         const today = new Date();
         const year = today.getFullYear();
         const month = String(today.getMonth() + 1).padStart(2, '0');
         this.selectedMonth = `${year}-${month}`;
-
       },
     }).mount("#app");
   </script>
 </body>
+
 </html>

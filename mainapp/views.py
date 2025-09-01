@@ -3,14 +3,69 @@ from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from .models import *
 import json
+from .utils import *
 
-
-ss=NewSupplier.objects.filter(supplier_name="praveen").values()
-print(ss)
 
 def home_view(request):
     return render(request, "index.html")
 
+@csrf_exempt
+def column_state(request):
+    if request.method == "POST":
+        supplier_id = request.POST.get("supplier_id")
+
+        if not supplier_id:
+            return JsonResponse({'status': 'error', 'message': 'Missing supplier_id'}, status=400)
+        try:
+            state=ColumnEditingState.objects.get(supplier_id=supplier_id)
+            column_state=state.column_state
+
+        except json.JSONDecodeError:
+                column_state = []
+        return JsonResponse({
+            "status": "success",
+            "supplier_id": supplier_id,
+            "column_state": state.column_state
+            })
+    
+        
+        
+
+
+@csrf_exempt
+def save_edited_columns(request):
+    if request.method == "POST":
+        supplier_id = request.POST.get("supplier_id")
+        if not supplier_id:
+            return JsonResponse({'status': 'error', 'message': 'Missing supplier_id'}, status=400)
+        try:
+            edit_column_list_raw = request.POST.get("edit_column_list", "[]")
+            try:
+                edit_column_list = json.loads(edit_column_list_raw)
+                print("edit_column_list",edit_column_list)
+            
+            except json.JSONDecodeError:
+                edit_column_list = []
+
+            col_edit=ColumnEditing(edit_column_list,supplier_id)
+            supp=col_edit.get_supplier()
+            supp.supplier_col=col_edit.get_column_list()
+            supp.save()
+            # print("Updated supplier_col:", supp.supplier_col)
+            supp.supplier_mapp_col=col_edit.get_column_dict()
+            supp.save()
+            #print("Updated supplier_col:", supp.supplier_mapp_col)
+            return JsonResponse({
+                "status": "success",
+            })
+        
+        except Exception as e:
+            return JsonResponse({"status": "error", "message": str(e)}, status=500)
+
+    return JsonResponse({"status": "invalid request"}, status=400)
+
+
+        
 @csrf_exempt
 def fetch_column_mapp(request):
     if request.method == "POST":
@@ -20,7 +75,6 @@ def fetch_column_mapp(request):
         try:
             supplier = NewSupplier.objects.get(id=supplier_id)
             supplier_col=supplier.supplier_col or []
-            print("supplier_col====================>",supplier_col)
             return JsonResponse(list(supplier_col), safe=False)
         except NewSupplier.DoesNotExist:
             return JsonResponse({'status': 'error', 'message': 'Supplier not found'}, status=404)
@@ -61,11 +115,14 @@ def fetch_columns(request):
         supplier_id = request.POST.get("supplier_id")
         if not supplier_id:
             return JsonResponse({'status': 'error', 'message': 'Missing supplier_id'}, status=400)
+        print(supplier_id)
         try:
             supplier = NewSupplier.objects.get(id=supplier_id)
-            supplier_col=supplier.supplier_col or []
-            print("supplier_col====================>",supplier_col)
-            return JsonResponse(list(supplier_col), safe=False)
+            supplier_col_map=supplier.supplier_mapp_col or {}
+            mapping_columns = list(supplier_col_map.keys())
+            print("supplier_col====================>",mapping_columns)
+            #return JsonResponse({'status': 'success'}, status=200)
+            return JsonResponse({'status': 'success','mapping_columns': mapping_columns}, status=200)
         except NewSupplier.DoesNotExist:
             return JsonResponse({'status': 'error', 'message': 'Supplier not found'}, status=404)
     return JsonResponse({'status': 'error', 'message': 'Invalid request method'}, status=405)
