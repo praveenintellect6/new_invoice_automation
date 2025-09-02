@@ -1,0 +1,11 @@
+<div>
+    <div class="row mt-2 bg-blue-200 shadow-md">
+        <div class="flex-1 p-4 m-2 "></div>
+        <div class="flex-1 p-4 m-2 ">
+            <input type="date" v-model="excel_date" class="form-control w-50 mb-3">
+            <input type="file" multiple accept=".xlsx" @change="handleExcelFileUpload" />
+            <button @click="submitExcelFiles" class="submit-button mt-2">Upload Excel</button>
+        </div>
+        <div class="flex-1 p-4 m-2 "></div>
+    </div>
+</div>

@@ -11,9 +11,7 @@ def default_mapping():
         "PURCHASED COUNT": "",
         "TOTAL PRICE": "",
         "ACTUAL PRICE": "",
-        "PROFIT%":"",
         "SELLING PRICE(Exc.GST)":"",
-        "GST":"",
         "SELLING PRICE(Inc.GST)":"",
         }
 
@@ -46,4 +44,19 @@ class PurchaseReport(models.Model):
 class ColumnEditingState(models.Model):
     supplier=models.ForeignKey(NewSupplier, on_delete=models.CASCADE)
     column_state=models.JSONField(default=list, blank=True)
+
+class Cases(models.Model):
+    supplier=models.ForeignKey(NewSupplier, on_delete=models.CASCADE)
+    profit=models.CharField(max_length=10)
+    gst=models.CharField(max_length=10)
+    min=models.CharField(max_length=10)
+    max=models.CharField(max_length=10)
+
+class CaseEditingState(models.Model):
+    supplier=models.ForeignKey(NewSupplier, on_delete=models.CASCADE)
+    case_state=models.JSONField(default=list, blank=True)
+    gst=models.CharField(max_length=10)
+
+
+
 

@@ -42,7 +42,7 @@
                 <div class="flex-1 p-2 m-1">
                     <select
                         class="border border-gray-300 rounded-md px-2 py-2 ml-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                        v-model="supplier_edit_case">
+                        v-model="supplier_edit_case" @change="supplier_edit_case_change">
                         <option value="" disabled selected>-- Select Supplier --</option>
                         <option v-for="supplier in suppliers" :key="supplier.id" :value="supplier.id">
                             [[ supplier.supplier_name ]]
@@ -60,9 +60,9 @@
                 </div>
 
                 <div class="flex-1 text-center p-2 m-1 ">
-                    <button @click="addGST"
+                    <!-- <button @click="addGST"
                         class="w-32 bg-blue-600 text-white px-2 py-2 rounded-lg shadow hover:bg-blue-700 transition">Set
-                    </button>
+                    </button> -->
                 </div>
 
             </div>

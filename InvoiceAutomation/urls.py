@@ -28,5 +28,6 @@ urlpatterns = [
     path('add_update_columns/', views.add_update_columns, name="add_update_columns"),
     path('fetch_column_mapp/',views.fetch_column_mapp,name="fetch_column_mapp"),
     path('save_edited_columns/', views.save_edited_columns, name="save_edited_columns"),
-    path('column_state/', views.column_state, name="column_state"),
+    path('save_edited_case/',views.save_edited_case,name="save_edited_case"),
+    path("fetch_case/",views.fetch_case,name="fetch_case"),
 ]
