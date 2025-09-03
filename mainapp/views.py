@@ -32,7 +32,6 @@ def save_edited_case(request):
     else:
         return JsonResponse({"status": "invalid request"}, status=400)
 
-
 @csrf_exempt
 def save_edited_columns(request):
     if request.method == "POST":

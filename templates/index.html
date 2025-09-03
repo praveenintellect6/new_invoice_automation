@@ -188,7 +188,7 @@
 
         <!-- column_mapping -->
         <div v-if="activeTab==='column_mapping'">
-          {% include "column_mapping.html" %}
+         
 
         </div>
 
@@ -239,12 +239,22 @@
           profit_Case: '',
           add_case_list: [],
           gst_input: '',
-          // setting.html end ======================================
+          // upload_excel.html variable ======================================
+          excel_date:'',
+          excelFiles: [],
+
         };
 
       },
       methods: {
-        // setting.html variables======================================
+        // upload_excel.html methods=============================================
+        handleExcelFileUpload(event) {
+            this.excelFiles = Array.from(event.target.files);
+            console.log("Selected files:", this.excelFiles);
+            
+        },
+
+        // setting.html methods=============================================
         async supplier_edit_case_change(){
           try {
             const baseUrl = window.location.origin;
