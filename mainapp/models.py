@@ -11,7 +11,9 @@ def default_mapping():
         "PURCHASED COUNT": "",
         "TOTAL PRICE": "",
         "ACTUAL PRICE": "",
+        "PROFIT%":"",
         "SELLING PRICE(Exc.GST)":"",
+        "GST":"",
         "SELLING PRICE(Inc.GST)":"",
         }
 

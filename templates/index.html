@@ -242,18 +242,88 @@
           // upload_excel.html variable ======================================
           excel_date:'',
           excelFiles: [],
+          loading: false,
 
         };
 
       },
       methods: {
         // upload_excel.html methods=============================================
+        async submitExcelFiles(){
+
+            if (this.excel_date === ""){
+              Swal.fire({
+              icon: 'warning',
+              title: 'Warning',
+              text: 'Please Input Date!',
+              confirmButtonColor: '#f59e0b'
+            });
+            }
+            else if(this.excelFiles.length === 0){
+              Swal.fire({
+              icon: 'warning',
+              title: 'Warning',
+              text: 'Please Select One Excel file',
+              confirmButtonColor: '#f59e0b'
+            });
+            }
+            else{
+              // this.loading = true;
+               Swal.fire({
+                  title: "Uploading...",
+                  text: "Please wait while we process your files",
+                  allowOutsideClick: false,
+                  allowEscapeKey: false,
+                  didOpen: () => {
+                    Swal.showLoading();
+                  },
+                });
+              try{
+                  const baseUrl = window.location.origin;
+                  const formData = new FormData();
+                  this.excelFiles.forEach((file) => {
+                  formData.append("files", file);
+                  });
+                  formData.append("date", this.excel_date); 
+                  const response = await axios.post(`${baseUrl}/submit_excel_files/`, formData, {
+                    headers: {
+                      "Content-Type": "multipart/form-data"
+                    }
+                  });
+                  if (response.data.status === 'success') {
+                     Swal.fire({
+                        icon: "success",
+                        title: "Upload Complete",
+                        text: "Your Excel files were uploaded successfully",
+                        confirmButtonColor: "#3b82f6"
+                      });
+                  }else{
+                     Swal.fire({
+                        icon: "error",
+                        title: "Failed",
+                        text: response.data.message || "Upload failed",
+                        confirmButtonColor: "#ef4444"
+                      });
+                  }
+                
+                }catch(error){
+                    console.error("Upload failed:", error);
+                    Swal.fire({
+                      icon: "error",
+                      title: "Error",
+                      text: "Something went wrong during upload",
+                      confirmButtonColor: "#ef4444"
+                    });
+                }finally {
+                  this.loading = false;
+                }
+
+            }
+          },
         handleExcelFileUpload(event) {
             this.excelFiles = Array.from(event.target.files);
             console.log("Selected files:", this.excelFiles);
-            
         },
-
         // setting.html methods=============================================
         async supplier_edit_case_change(){
           try {
@@ -270,7 +340,7 @@
               // this.mapping_columns = response.data.mapping_columns;
               // this.edit_column_list = response.data.column_state;
               this.add_case_list = response.data.case_state;
-              this.gst = response.data.gst;
+              this.gst_input = response.data.gst;
               
             }
 
@@ -280,6 +350,7 @@
           }
         },
         async saveCase() {
+
           if (this.supplier_edit_case === '' || this.gst_input === '') {
             Swal.fire({
               icon: 'warning',
@@ -419,7 +490,7 @@
               this.mapping_columns = response.data.mapping_columns;
               this.edit_column_list = response.data.column_state;
               // this.add_case_list = response.data.case_state;
-              // this.gst = response.data.gst;
+              //this.gst = response.data.gst;
             }
 
           }

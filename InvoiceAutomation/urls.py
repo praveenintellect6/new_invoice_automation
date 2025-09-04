@@ -26,8 +26,8 @@ urlpatterns = [
     path('delete_supplier/', views.delete_supplier, name="delete_supplier"),
     path('fetch_columns/', views.fetch_columns, name="fetch_columns"),
     path('add_update_columns/', views.add_update_columns, name="add_update_columns"),
-    path('fetch_column_mapp/',views.fetch_column_mapp,name="fetch_column_mapp"),
     path('save_edited_columns/', views.save_edited_columns, name="save_edited_columns"),
     path('save_edited_case/',views.save_edited_case,name="save_edited_case"),
     path("fetch_case/",views.fetch_case,name="fetch_case"),
+    path('submit_excel_files/',views.submit_excel_files,name='submit_excel_files'),
 ]

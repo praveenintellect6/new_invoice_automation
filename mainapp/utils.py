@@ -1,6 +1,7 @@
 from .models import *
 
 class CaseEditing:
+
     def __init__(self, lst_array,supplier_id,gst):
         self.supplier=NewSupplier.objects.get(id=supplier_id)
         deleted_count, _ = Cases.objects.filter(supplier_id=supplier_id).delete()
@@ -13,17 +14,20 @@ class CaseEditing:
         for i in self.lst_array:
             min=i[0]
             max=i[1]
-            profit=[2]
-            Cases.objects.create(supplier=self.supplier, min=min, max=max, profit=profit,gst=self.gst)  
+            profit=i[2]
+     
+            case=Cases.objects.create(supplier=self.supplier, min=min, max=max, profit=profit,gst=self.gst)  
+            case.save()
 
     def storeCaseState(self):
+       
         state, created = CaseEditingState.objects.update_or_create(
             supplier=self.supplier,
-            gst=self.gst,
-            defaults={"case_state": self.lst_array}
+            defaults={"case_state": self.lst_array,
+                      "gst": self.gst}
         )
         self.state=state
-
+    
     
 
 class ColumnEditing:
@@ -61,7 +65,6 @@ class ColumnEditing:
                 self.case_col_map(i)
             if '' == i[0] and ''!= i[1] and '' != i[2]:
                 self.case_calculation(i)
-            
     
     def case_col_add(self,lst):
         self.__column_list.append(lst[0])
@@ -69,6 +72,7 @@ class ColumnEditing:
     def case_col_map(self,lst):
         for i in lst:
             self.col_map_tem[lst[1]]=lst[0]
+            self.__column_list.append(lst[0])
     
     def case_calculation(self,lst):
         for i in lst:
