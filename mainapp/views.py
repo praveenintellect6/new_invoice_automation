@@ -12,6 +12,7 @@ from datetime import datetime
 from .purchase_report import *
 load_dotenv()
 from openpyxl import load_workbook
+import time 
 
 # print(os.getenv("DB_PORT"))
 # supp=NewSupplier.objects.get(id=23)
@@ -45,26 +46,25 @@ def submit_excel_files(request):
             df=pd.read_excel(f)
             supplier_name = df['supplier'].iloc[0]
             print(supplier_name)
-            exists = NewSupplier.objects.filter(supplier_name=supplier_name).exists()
-            if not exists:
+            exist = NewSupplier.objects.filter(supplier_name=supplier_name).exists()
+            if not exist:
                 break
             else:
-                rr = ReportCalculation(df=df) 
-                rr.MappToPurchaseReport()
-                p_df=rr.exportToExcel()
-                
+                supp = NewSupplier.objects.filter(supplier_name=supplier_name).first()
+                print("supplier exist")
                 folder_path = PurchaseReportClass().createFolderByDate(excel_date)
-                save_path=os.path.join(folder_path, f.name)
-                with open(save_path, "wb+") as destination:
-                    for chunk in f.chunks():
-                        destination.write(chunk)
-                excel_path=os.path.join(folder_path,f"{excel_date}_PurchaseReport.xlsx")
-                if os.path.exists(excel_path): 
-                    print("File already exists:", excel_path)
+                if os.path.exists(os.path.join(folder_path, f.name)):
+                    print("file exist")
                 else:
-                    print("File does not exist, safe to create:", excel_path)
-                    p_df.to_excel(excel_path, index=False)
-                saved_files.append(f.name)
+                    rr = ReportCalculation(df=df,file=folder_path,excel_date=excel_date,supp=supp) 
+                    rr.MappToPurchaseReport()
+                    p_df=rr.exportToExcel()
+                    save_path=os.path.join(folder_path, f.name)
+                    with open(save_path, "wb+") as destination:
+                        for chunk in f.chunks():
+                            destination.write(chunk)
+            folder_path = PurchaseReportClass().createFolderByDate(excel_date)
+            PurchaseReportClass.copy_folder_contents(source_folder=folder_path)
         return JsonResponse({"status": "success", "files": saved_files})
     return JsonResponse({"status": "failed", "message": "Invalid request"}, status=400)
 

@@ -7,14 +7,15 @@ import numpy as np
 from openpyxl import load_workbook
 from dotenv import load_dotenv
 import os
-
-
+import shutil
+from .purchase_report import PurchaseReportClass
 class ReportCalculation:
     #*kwargs(df=df)
-    def __init__(self, file=None, df=None):
+    def __init__(self, file=None, df=None,excel_date=None,supp=None):
+        self.supp=supp
         self.operator=["+", "-", "*", "/"]
         #'0','1','2','3','4','5','6','7','8','9'
-        self.supp=NewSupplier.objects.get(id=24)
+        # self.supp=NewSupplier.objects.get(id=24)
         self.cases=Cases.objects.filter(supplier=self.supp).values('min','max','profit')
         self.gst=Cases.objects.filter(supplier=self.supp).first()
         self.gst=self.gst.gst
@@ -31,7 +32,11 @@ class ReportCalculation:
         #self.read_excel()
         if df is not None:
             self.df=df
-    
+        if file is not None:
+            self.filepath=file
+        if excel_date is not None:
+            self.excel_date=excel_date
+
     def get_equation(self):
         return self.equation
     
@@ -58,29 +63,30 @@ class ReportCalculation:
         self.sample['DATE'] = self.combine_report['maildate']
         self.sample['PROFIT%'] = self.combine_report['PROFIT_per']
 
-        self.wb = load_workbook(self.template_path, data_only=True)
+
+        filepathname = os.path.join(self.filepath, f"{self.excel_date}_PurchaseReport.xlsx")
+        if os.path.exists(filepathname):
+            self.wb = load_workbook(filepathname)
+           
+        else:
+            self.wb = load_workbook(self.template_path, data_only=True)
+
         ws = self.wb.active
-        headers = [cell.value for cell in ws[4]]  # row 1 for headers
-        print("Columns ", headers)
-        print("Columns ===sample====:",self.sample['PART DESCRIPTION'])
-        start_row = 5
+        headers = [cell.value for cell in ws[4]] 
+        # print("Columns ", headers)
+        start_row = ws.max_row + 1
         for r_idx, row in enumerate(self.sample.to_dict('records'), start=start_row):
             for c_idx, header in enumerate(headers, start=1):
-                if header in row: 
+                if header == "S.NO":
+                    ws.cell(row=r_idx, column=c_idx, value=r_idx - 4)
+                elif header in row:
                     ws.cell(row=r_idx, column=c_idx, value=row[header])
-        # header_row = 4
-        # existing_headers = [cell.value for cell in ws[header_row]]
-        # first_empty_row = ws.max_row + 1
-        # for i, row in enumerate(self.sample.itertuples(index=False), start=first_empty_row):
-        #     for j, col_name in enumerate(existing_headers, start=1):
-        #         if col_name in self.sample.columns:
-        #             value = getattr(row, col_name)
-        #             ws.cell(row=i, column=j, value=value)
 
-        self.wb.save("webhook.xlsx")
+        self.wb.save(filepathname)
+        self.wb.close()
+        # PurchaseReportClass.copyToRemoteFolder(source_folder=self.filepath)
         return self.sample
         #return self.wb
-    
         #self.sample.to_excel(f"{self.supplier_name}.xlsx", index=False)
     
     def getProcessedReport(self):
