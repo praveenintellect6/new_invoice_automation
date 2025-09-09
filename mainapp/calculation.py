@@ -64,8 +64,15 @@ class ReportCalculation:
         self.sample=pd.DataFrame()
         for key,value in default_mapping().items():
             self.sample[key] = self.combine_report[key]
-        self.sample['Supplier'] = self.combine_report['supplier']
-        self.sample['DATE'] = self.combine_report['maildate']
+
+        if 'supplier' in self.combine_report.columns:
+            self.sample['Supplier'] = self.combine_report['supplier']
+        else:
+            self.sample['Supplier'] = ""
+        if 'maildate' in self.combine_report.columns:
+            self.sample['DATE'] = self.combine_report['maildate']
+        else:
+            self.sample['DATE'] = ""
         self.sample['PROFIT%'] = self.combine_report['PROFIT_per']
         filepathname = os.path.join(self.filepath, f"{self.excel_date}_PurchaseReport.xlsx")
 
@@ -96,26 +103,27 @@ class ReportCalculation:
         return self.sample
 
     def findProfit(self):
-        # self.combine_report[self.profit_mapp]
-
-        def findpro(value):     
+        def findpro(value):
+            value=float(value)
             for i in self.cases:
-                if int(i['min']) < value <=int(i['max']):
+                if int(i['min']) < value <= int(i['max']):
                     return round(float(i['profit'])/100 * value,2)
             return None
         
         def findper(value):
+            value=float(value)
             for i in self.cases:
-                if int(i['min']) < value <=int(i['max']):
+                if int(i['min']) < value <= int(i['max']):
                     return i['profit']+' %'
             return None
-        print(self.profit_mapp,"===",self.combine_report[self.profit_mapp])
+        
+        print(self.combine_report['PART DESCRIPTION'])
         self.combine_report["PROFIT%"] = self.combine_report[self.profit_mapp].apply(findpro)
-
         self.combine_report["PROFIT_per"] = self.combine_report[self.profit_mapp].apply(findper)
 
     def findGst(self):
         def findgst(value):
+            value=float(value)
             gst=float(self.gst)/100
             return round((value * gst),2)
         self.combine_report["GST"] = self.combine_report[self.gst_mapp].apply(findgst)

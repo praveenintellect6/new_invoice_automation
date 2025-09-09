@@ -53,7 +53,7 @@ def submit_edit_excel_files(request):
         for file in xlsx_files:
             file_path = os.path.join(folder_path, file)
             try:
-                df = pd.read_excel(file_path)
+                df=pd.read_excel(file_path, dtype=str)
                 supplier_name = df['supplier'].iloc[0]
                 supp = NewSupplier.objects.filter(supplier_name=supplier_name).first()
                 if not supp:
@@ -78,7 +78,7 @@ def submit_excel_files(request):
         files = request.FILES.getlist("files")
         excel_date = request.POST.get("date")
         for f in files:
-            df=pd.read_excel(f)
+            df=pd.read_excel(f, dtype=str)
             supplier_name = df['supplier'].iloc[0]
             print(supplier_name)
             exist = NewSupplier.objects.filter(supplier_name=supplier_name).exists()
