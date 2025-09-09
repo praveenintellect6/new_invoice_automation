@@ -239,16 +239,76 @@
           profit_Case: '',
           add_case_list: [],
           gst_input: '',
+          gst_map_input:'',
+          profit_map_input:'',
           // upload_excel.html variable ======================================
           excel_date:'',
+          edit_excel_date:'',
           excelFiles: [],
+          edit_excelFiles:[],
           loading: false,
-
         };
 
       },
       methods: {
         // upload_excel.html methods=============================================
+        async edit_submitExcelFiles(){
+          if (this.edit_excel_date === ""){
+              Swal.fire({
+              icon: 'warning',
+              title: 'Warning',
+              text: 'Please Input Date!',
+              confirmButtonColor: '#f59e0b'
+            });
+            }
+            else if(this.edit_excelFiles.length === 0){
+              Swal.fire({
+              icon: 'warning',
+              title: 'Warning',
+              text: 'Please Select One Excel file',
+              confirmButtonColor: '#f59e0b'
+            });
+            }
+            else{
+              try{
+                  const baseUrl = window.location.origin;
+                  const formData = new FormData();
+                  this.edit_excelFiles.forEach((file) => {
+                  formData.append("files", file);
+                  });
+                  formData.append("date", this.edit_excel_date); 
+                  const response = await axios.post(`${baseUrl}/submit_edit_excel_files/`, formData, {
+                    headers: {
+                      "Content-Type": "multipart/form-data"
+                    }
+                  });
+                  if (response.data.status === 'success') {
+                     Swal.fire({
+                        icon: "success",
+                        title: "Upload Complete",
+                        text: "Your Excel files were uploaded successfully",
+                        confirmButtonColor: "#3b82f6"
+                      });
+                  }else{
+                     Swal.fire({
+                        icon: "error",
+                        title: "Failed",
+                        text: response.data.message || "Upload failed",
+                        confirmButtonColor: "#ef4444"
+                      });
+                  }
+                
+                }catch(error){
+                    console.error("Upload failed:", error);
+                    Swal.fire({
+                      icon: "error",
+                      title: "Error",
+                      text: "Something went wrong during upload",
+                      confirmButtonColor: "#ef4444"
+                    });
+                }
+            }
+        },
         async submitExcelFiles(){
 
             if (this.excel_date === ""){
@@ -314,18 +374,22 @@
                       text: "Something went wrong during upload",
                       confirmButtonColor: "#ef4444"
                     });
-                }finally {
-                  this.loading = false;
                 }
-
             }
           },
+        edit_handleExcelFileUpload(event){
+            this.edit_excelFiles = Array.from(event.target.files);
+            console.log("Selected files:", this.edit_excelFiles);
+        },
         handleExcelFileUpload(event) {
             this.excelFiles = Array.from(event.target.files);
             console.log("Selected files:", this.excelFiles);
         },
         // setting.html methods=============================================
         async supplier_edit_case_change(){
+              this.gst_input = '';
+              this.gst_mapp='';
+              this.profit_mapp='';
           try {
             const baseUrl = window.location.origin;
             const response = await axios.post(`${baseUrl}/fetch_case/`, new URLSearchParams({ supplier_id: this.supplier_edit_case}),
@@ -341,7 +405,8 @@
               // this.edit_column_list = response.data.column_state;
               this.add_case_list = response.data.case_state;
               this.gst_input = response.data.gst;
-              
+              this.gst_map_input=response.data.gst_mapp;
+              this.profit_map_input=response.data.profit_mapp;
             }
 
           }
@@ -374,6 +439,8 @@
                 new URLSearchParams({
                   supplier_id: this.supplier_edit_case,
                   gst: this.gst_input,
+                  gst_mapp:this.gst_map_input,
+                  profit_mapp:this.profit_map_input,
                   add_case_list: JSON.stringify(this.add_case_list)
                 }),
                 {

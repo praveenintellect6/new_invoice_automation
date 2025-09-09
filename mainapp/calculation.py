@@ -9,6 +9,7 @@ from dotenv import load_dotenv
 import os
 import shutil
 from .purchase_report import PurchaseReportClass
+
 class ReportCalculation:
     #*kwargs(df=df)
     def __init__(self, file=None, df=None,excel_date=None,supp=None):
@@ -17,8 +18,12 @@ class ReportCalculation:
         #'0','1','2','3','4','5','6','7','8','9'
         # self.supp=NewSupplier.objects.get(id=24)
         self.cases=Cases.objects.filter(supplier=self.supp).values('min','max','profit')
-        self.gst=Cases.objects.filter(supplier=self.supp).first()
-        self.gst=self.gst.gst
+        self.gst_profit_case=Cases.objects.filter(supplier=self.supp).first()
+        self.gst=self.gst_profit_case.gst
+
+        self.gst_mapp=self.gst_profit_case.gst_mapp
+        self.profit_mapp=self.gst_profit_case.profit_mapp
+        
         self.supplier_name=self.supp.supplier_name
         self.mapped_col = self.supp.supplier_mapp_col
         self.col_list = self.supp.supplier_col
@@ -44,7 +49,7 @@ class ReportCalculation:
         return self.direct
     
     def extractExpression(self):
-        self.sorted_data = {key: self.mapped_col.get(key, "") for key in default_mapping().keys()}
+        self.sorted_data = {key: self.mapped_col.get(key,"") for key in default_mapping().keys()}
         for key, value in self.sorted_data.items():
             if any(op in value for op in self.operator):
                 self.equation.append(key)
@@ -54,7 +59,7 @@ class ReportCalculation:
     def read_excel(self,):
         df = pd.read_excel("196_Invoice_4321420874.xlsx")
         self.df=df
-
+    
     def exportToExcel(self):
         self.sample=pd.DataFrame()
         for key,value in default_mapping().items():
@@ -62,9 +67,8 @@ class ReportCalculation:
         self.sample['Supplier'] = self.combine_report['supplier']
         self.sample['DATE'] = self.combine_report['maildate']
         self.sample['PROFIT%'] = self.combine_report['PROFIT_per']
-
-
         filepathname = os.path.join(self.filepath, f"{self.excel_date}_PurchaseReport.xlsx")
+
         if os.path.exists(filepathname):
             self.wb = load_workbook(filepathname)
            
@@ -84,7 +88,6 @@ class ReportCalculation:
 
         self.wb.save(filepathname)
         self.wb.close()
-        # PurchaseReportClass.copyToRemoteFolder(source_folder=self.filepath)
         return self.sample
         #return self.wb
         #self.sample.to_excel(f"{self.supplier_name}.xlsx", index=False)
@@ -93,7 +96,7 @@ class ReportCalculation:
         return self.sample
 
     def findProfit(self):
-        self.combine_report['ACTUAL PRICE']
+        # self.combine_report[self.profit_mapp]
 
         def findpro(value):     
             for i in self.cases:
@@ -106,89 +109,74 @@ class ReportCalculation:
                 if int(i['min']) < value <=int(i['max']):
                     return i['profit']+' %'
             return None
-        
-        self.combine_report["PROFIT%"] = self.combine_report["ACTUAL PRICE"].apply(findpro)
+        print(self.profit_mapp,"===",self.combine_report[self.profit_mapp])
+        self.combine_report["PROFIT%"] = self.combine_report[self.profit_mapp].apply(findpro)
 
-        self.combine_report["PROFIT_per"] = self.combine_report["ACTUAL PRICE"].apply(findper)
+        self.combine_report["PROFIT_per"] = self.combine_report[self.profit_mapp].apply(findper)
 
     def findGst(self):
         def findgst(value):
             gst=float(self.gst)/100
             return round((value * gst),2)
-        
-        self.combine_report["GST"] = self.combine_report["SELLING PRICE(Exc.GST)"].apply(findgst)
-
-
-    def split_formula(self,formula, columns):
-        # Sort columns by length (to avoid partial matches, e.g., PRICE inside TOTAL PRICE)
-        sorted_cols = sorted(columns, key=len, reverse=True)
-        # Escape regex special characters in column names
-        escaped_cols = [re.escape(col) for col in sorted_cols]
-        # Regex: match column OR operator (+, -, *, /, parentheses, %)
-        pattern = r'(' + '|'.join(escaped_cols) + r'|\+|\-|\*|\/|\(|\)|%)'
-        tokens = [t.strip() for t in re.findall(pattern, formula) if t.strip()]
-        return tokens
-
+        self.combine_report["GST"] = self.combine_report[self.gst_mapp].apply(findgst)
 
     def MappToPurchaseReport(self):
         #create purachase report dataframe
         self.report=pd.DataFrame(columns=list(self.mapped_col.keys()))
+        
         mergelst=list(self.mapped_col.keys()) + (list(self.df.columns))
+
         #create comined columns of supplier report and purchase report 
         self.combine_report=pd.DataFrame(columns=mergelst)
+
         #insert data from supplier df into combined df
         for i in list(self.df.columns):
             self.combine_report[i]=self.df[i]
         
-        for key,value in self.sorted_data.items():
+        if self.gst_mapp in self.combine_report.columns:
+            self.findProfit()
 
+        if self.profit_mapp in self.combine_report.columns:
+            self.findGst()
+
+        for key,value in self.sorted_data.items():
             if key in self.direct:
                     if value in self.df.columns:
                         self.report[key] = self.df[value]
                         #insert data from purchase report df to combined df
                         self.combine_report[key]=self.df[value]
+                        
+                        # if key == self.profit_mapp:
+                        #     print("yes profit")
+                        #     self.findProfit()
 
-                        if key == 'ACTUAL PRICE':
-                            self.findProfit()
-
-                        if key == 'SELLING PRICE(Exc.GST)':
-                            self.findGst()
+                        # if key == self.gst_mapp:
+                        #     self.findGst()
             
             if key in self.equation:
                 #for i in sorted(self.combine_report.columns, key=len,reverse=True):
                 sorted_cols = sorted(list(self.combine_report.columns), key=len, reverse=True)
                 escaped_cols = [re.escape(col) for col in sorted_cols]
-
                 # Add regex for numbers: \d+(?:\.\d+)?  (matches 10, 3.5, etc.)
                 pattern = r'(' + '|'.join(escaped_cols) + r'|\+|\-|\*|\/|\(|\)|%|\d+(?:\.\d+)?)'
                 tokens = [t.strip() for t in re.findall(pattern, value) if t.strip()]
                 tokens = ' '.join([f"pd.to_numeric(self.combine_report['{i}'], errors='coerce')" if i in list(self.combine_report.columns) else i for i in tokens])
                 self.equation_token_mapp[key]=tokens
                 self.combine_report[key] =  eval(self.equation_token_mapp[key]).round(2)
-
-                if key == 'ACTUAL PRICE':
-                        self.findProfit()
-
-                if key == 'SELLING PRICE(Exc.GST)':
-                        self.findGst()
-
-                # for i in tokens:
-                #     if i in list(self.combine_report.columns):
-                #         value=value.replace(i,f"df['{i}']")
                 
-            
-        #print(self.equation)
-            # if key in self.equation:
-            #     print("value",key)
+                # if key == self.profit_mapp:
+                #         self.findProfit()
+                #         print("yes profit")
                 
-            #     print("Add:", self.ops["+"](a, b))  
-                
-            #     print("operant:",[i for i in self.report.columns if i in value])
-            #     print("operator:",[i for i in self.operator if i in value])
-        #self.report.to_excel("output.xlsx", index=False)
-        #self.combine_report.to_excel("output2.xlsx", index=False)
-        #print(self.equation_token_mapp)
-        # print(self.combine_report['ACTUAL PRICE'])
-        print("--------------------------------------------------")
+                # if key == self.gst_mapp:
+                #         self.findGst()
+                #         print("yes gst")
+            if key == self.profit_mapp:
+                    self.findProfit()
+
+            if key == self.gst_mapp:
+                    self.findGst()
+  
+        print("-----------------calculation end---------------------------------")
     
 

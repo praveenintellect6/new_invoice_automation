@@ -2,11 +2,13 @@ from .models import *
 
 class CaseEditing:
 
-    def __init__(self, lst_array,supplier_id,gst):
+    def __init__(self, lst_array=None,supplier_id=None,gst=None,gst_mapp=None,profit_mapp=None):
         self.supplier=NewSupplier.objects.get(id=supplier_id)
         deleted_count, _ = Cases.objects.filter(supplier_id=supplier_id).delete()
         self.lst_array=lst_array
         self.gst=gst
+        self.gst_mapp=gst_mapp
+        self.profit_mapp=profit_mapp
         self.editcase()
         self.storeCaseState()
 
@@ -15,8 +17,7 @@ class CaseEditing:
             min=i[0]
             max=i[1]
             profit=i[2]
-     
-            case=Cases.objects.create(supplier=self.supplier, min=min, max=max, profit=profit,gst=self.gst)  
+            case=Cases.objects.create(supplier=self.supplier, min=min, max=max, profit=profit,gst=self.gst,gst_mapp=self.gst_mapp,profit_mapp=self.profit_mapp)
             case.save()
 
     def storeCaseState(self):
@@ -24,13 +25,15 @@ class CaseEditing:
         state, created = CaseEditingState.objects.update_or_create(
             supplier=self.supplier,
             defaults={"case_state": self.lst_array,
-                      "gst": self.gst}
+                      "gst": self.gst,
+                      "gst_mapp": self.gst_mapp,
+                      "profit_mapp": self.profit_mapp}
         )
         self.state=state
     
     
-
 class ColumnEditing:
+
     def __init__(self, lst_array,supplier_id):
         self.lst_array=lst_array
         self.supplier=NewSupplier.objects.get(id=supplier_id)
@@ -86,4 +89,3 @@ class ColumnEditing:
         )
         self.state=state
     
-

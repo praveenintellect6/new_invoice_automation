@@ -19,21 +19,57 @@ import time
 # print(supp.supplier_mapp_col)
 
 
-# rr=ReportCalculation()
+# rr=NewSupplier.objects.get(supplier_name='wurth')
+# print(rr.supplier_mapp_col)
 
-# @csrf_exempt
-# def submit_excel_files(request):
-#     if request.method == "POST":
-#         files = request.FILES.getlist("files")
-#         saved_files = []
-#         for f in files:
-#             save_path=os.path.join(settings.MEDIA_ROOT, f.name)
-#             with open(save_path, "wb+") as destination:
-#                 for chunk in f.chunks():
-#                     destination.write(chunk)
-#             saved_files.append(f.name)
-#         return JsonResponse({"status": "success", "files": saved_files})
-#     return JsonResponse({"status": "failed"}, status=400)
+@csrf_exempt
+def submit_edit_excel_files(request):
+    if request.method == "POST":
+        files = request.FILES.getlist("files")
+        excel_date = request.POST.get("date")
+        folder_path = PurchaseReportClass().createFolderByDate(excel_date)
+        print(excel_date)
+        for i in files:
+            print(i.name)
+        if files:
+            for f in files:
+                if f.name.endswith('.xlsx'):
+                    path = os.path.join(folder_path, f.name)
+                if os.path.exists(path):
+                            os.remove(path)
+                with open(path, 'wb+') as destination:
+                        for chunk in f.chunks():
+                            destination.write(chunk)
+        try:
+            report_file = os.path.join(folder_path, f"{excel_date}_PurchaseReport.xlsx")
+            if os.path.exists(report_file):
+                os.remove(report_file)
+                print(f" Removed old report: {report_file}")
+        except Exception as e:
+            print(f" Could not remove old report: {e}")
+
+        xlsx_files = [ f for f in os.listdir(folder_path) if f.endswith(".xlsx") and not f.endswith("PurchaseReport.xlsx")]
+
+        for file in xlsx_files:
+            file_path = os.path.join(folder_path, file)
+            try:
+                df = pd.read_excel(file_path)
+                supplier_name = df['supplier'].iloc[0]
+                supp = NewSupplier.objects.filter(supplier_name=supplier_name).first()
+                if not supp:
+                    print(f" Supplier not found for {file}, skipping...")
+                    continue
+                rr = ReportCalculation(df=df, file=folder_path, excel_date=excel_date, supp=supp)
+                rr.MappToPurchaseReport()
+                p_df=rr.exportToExcel()
+                print(f" Processed {file}")
+                folder_path = PurchaseReportClass().createFolderByDate(excel_date)
+                PurchaseReportClass.copy_folder_contents(source_folder=folder_path)
+            except Exception as e:
+                print(f" Failed to process {file}: {e}")
+
+        return JsonResponse({"status": "success"})
+    return JsonResponse({"status": "failed", "message": "Invalid request"}, status=400)
 
 
 @csrf_exempt 
@@ -41,7 +77,6 @@ def submit_excel_files(request):
     if request.method == "POST":
         files = request.FILES.getlist("files")
         excel_date = request.POST.get("date")
-        saved_files = []
         for f in files:
             df=pd.read_excel(f)
             supplier_name = df['supplier'].iloc[0]
@@ -51,7 +86,6 @@ def submit_excel_files(request):
                 break
             else:
                 supp = NewSupplier.objects.filter(supplier_name=supplier_name).first()
-                print("supplier exist")
                 folder_path = PurchaseReportClass().createFolderByDate(excel_date)
                 if os.path.exists(os.path.join(folder_path, f.name)):
                     print("file exist")
@@ -65,7 +99,8 @@ def submit_excel_files(request):
                             destination.write(chunk)
             folder_path = PurchaseReportClass().createFolderByDate(excel_date)
             PurchaseReportClass.copy_folder_contents(source_folder=folder_path)
-        return JsonResponse({"status": "success", "files": saved_files})
+
+        return JsonResponse({"status": "success"})
     return JsonResponse({"status": "failed", "message": "Invalid request"}, status=400)
 
 
@@ -77,16 +112,17 @@ def home_view(request):
 def save_edited_case(request):
     if request.method == "POST":
         supplier_id = request.POST.get("supplier_id")
-        gst=request.POST.get("gst")
-        # print("supplier_id===",supplier_id)
-        # print("gst===",gst)
+        gst= request.POST.get("gst")
+        gst_mapp= request.POST.get("gst_mapp")
+        profit_mapp= request.POST.get("profit_mapp")
+
         if not supplier_id:
             return JsonResponse({'status': 'error', 'message': 'Missing supplier_id'}, status=400)
         try:
             add_case_list_raw = request.POST.get("add_case_list", "[]")
             edit_case_list = json.loads(add_case_list_raw)
             # print("edit_case_list===", edit_case_list)
-            case_edit=CaseEditing(edit_case_list,supplier_id,gst)
+            case_edit=CaseEditing(lst_array=edit_case_list,supplier_id=supplier_id,gst=gst,gst_mapp=gst_mapp,profit_mapp=profit_mapp)
             return JsonResponse({
                     "status": "success",
                 })
@@ -160,6 +196,7 @@ def fetch_case(request):
             # supplier_col_map=supplier.supplier_mapp_col or {}
             mapping_columns = list(default_mapping().keys())
             col_state = ColumnEditingState.objects.filter(supplier=supplier).first()
+
             if col_state:
                 state_data = col_state.column_state
             else:
@@ -169,13 +206,21 @@ def fetch_case(request):
             if case:
                 case_state = case.case_state
                 gst=case.gst
+                gst_mapp=case.gst_mapp
+                profit_mapp=case.profit_mapp
             else:
                 case_state=[]
                 gst=''
-         
-            return JsonResponse({'status': 'success','mapping_columns': mapping_columns,'column_state': state_data,'case_state': case_state,'gst':gst}, status=200)
+                gst_mapp=''
+                profit_mapp=''
+
+            return JsonResponse({'status': 'success','mapping_columns': mapping_columns,'column_state': state_data,'case_state': case_state,'gst':gst,
+                                 'gst_mapp':gst_mapp,'profit_mapp':profit_mapp}, status=200)
+        
         except NewSupplier.DoesNotExist:
+
             return JsonResponse({'status': 'error', 'message': 'Supplier not found'}, status=404)
+        
     return JsonResponse({'status': 'error', 'message': 'Invalid request method'}, status=405)
 
 @csrf_exempt

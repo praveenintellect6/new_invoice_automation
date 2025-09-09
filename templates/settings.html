@@ -58,6 +58,39 @@
                                     focus:ring-2 focus:ring-blue-500 w-32" />
                     </div>
                 </div>
+                <div class="flex-1 p-4 m-2">
+
+                    <div class="flex-1 p-2 m-1 relative group inline-block">
+                        <div class="flex justify-between items-center">
+                            <label for="gst_map_input" class="font-medium">Mapp GST</label>
+                            <input type="text" v-model="gst_map_input" id="gst_map_input" placeholder="GST Mapp"
+                                required class="ml-2 border border-gray-300 rounded-md px-2 py-2 focus:outline-none 
+                                    focus:ring-2 focus:ring-blue-500 w-32" />
+                        </div>
+                        <span 
+                            class="absolute bottom-full mb-1 hidden group-hover:block 
+                                bg-gray-800 text-white text-xs rounded py-1 px-2 whitespace-nowrap">
+                            select Gst Percentage in Purchase Report
+                        </span>
+                    </div>
+
+                    <div class="flex-1  p-2 m-1 relative group inline-block">
+                        <div class="flex justify-between items-center">
+                            <label for="profit_map_input" class="font-medium">Mapp Profit</label>
+                            <input type="text" v-model="profit_map_input" id="profit_map_input"
+                                placeholder="Profit Mapp" required class="ml-2 border border-gray-300 rounded-md px-2 py-2 focus:outline-none 
+                                    focus:ring-2 focus:ring-blue-500 w-32" />
+                        </div>
+                        <span 
+                            class="absolute bottom-full mb-1 hidden group-hover:block 
+                                bg-gray-800 text-white text-xs rounded py-1 px-2 whitespace-nowrap">
+                            Select Profit Percentage in Purchase Report
+                        </span>
+                    </div>
+
+                </div>
+
+
 
                 <div class="flex-1 text-center p-2 m-1 ">
                     <!-- <button @click="addGST"
@@ -84,12 +117,23 @@
                     focus:ring-2 focus:ring-blue-500 w-32" />
                 </div>
 
-                <div class="flex-1 p-2 m-1 ">
+                <div class="flex-1 p-2 m-1 relative group inline-block">
                     <span></span><br>
                     <button @click="addCase"
-                        class="w-32 bg-blue-600 text-white px-2 py-2 rounded-lg shadow hover:bg-blue-700 transition">Add
+                        class="w-10 h-10 flex items-center justify-center rounded-full  hover:bg-blue-700 transition">
+                        <!-- Tick Icon -->
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2"
+                            stroke="green" class="w-6 h-6">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+                        </svg>
                     </button>
+                    <span 
+                        class="absolute bottom-full mb-1 hidden group-hover:block 
+                            bg-gray-800 text-white text-xs rounded py-1 px-2 whitespace-nowrap">
+                        Add new case
+                    </span>
                 </div>
+                
             </div>
             <div class="flex justify-between items-center w-full" v-for="(row, index) in add_case_list" :key="index">
                 <div class="flex-1 text-center p-2 m-1 ">
@@ -104,21 +148,33 @@
                     <input type="text" v-model="row[2]"
                         class="w-32 bg-gray-100 px-4 py-2 rounded-lg text-gray-700 font-medium focus:outline-none focus:ring-2 focus:ring-blue-500" />
                 </div>
-                <div class="flex-1 text-center p-2 m-1 ">
-                    <button @click="remove_addCase(index)" class="text-red-600 hover:text-red-800 font-bold">
+                <div class="flex-1 text-left p-2 m-1 relative group inline-block">
+                    <button @click="remove_addCase(index)"  class="text-red-600 hover:text-red-800 font-bold">
                         ✕
                     </button>
+                    <span 
+                        class="absolute bottom-full mb-1 hidden group-hover:block 
+                            bg-gray-800 text-white text-xs rounded py-1 px-2 whitespace-nowrap">
+                        Remove this case
+                    </span>
                 </div>
             </div>
-            <div class="flex justify-between items-center w-full">
-                <div class="flex-1 text-right p-2 m-1 ">
+            <div class="flex justify-between w-full">
+                <div class="flex-1 text-center p-2 m-1 "></div>
+                <div class="flex-1 text-center p-2 m-1 ">
                     <button @click="saveCase"
-                        class="w-32 bg-blue-600 text-white font-medium py-2 px-4 rounded-lg shadow hover:bg-green-700 transition">
+                        class="w-18 bg-blue-600 text-white font-medium py-2 px-4 rounded-lg shadow hover:bg-green-700 transition">
                         Save
                     </button>
+                    
                 </div>
             </div>
         </div>
+     
+
+
+
+
     </div>
 </div>
 
@@ -148,10 +204,11 @@
     <div class="flex justify-between items-center w-full">
         <div class="flex-1 text-center p-2 m-1 "><span class="text-gray-700 font-semibold">Supplier Columns</span></div>
 
-         <div class="flex-1 text-center p-2 m-1 ">
+        <div class="flex-1 text-center p-2 m-1 ">
             <div class="ml-2 flex items-center space-x-2 p-2 m-1">
                 <!-- Toggle Button -->
-                <button @click="toggleState1 = !toggleState1 ; toggleState2 = false" :class="toggleState1 ? 'bg-blue-500' : 'bg-gray-300'"
+                <button @click="toggleState1 = !toggleState1 ; toggleState2 = false"
+                    :class="toggleState1 ? 'bg-blue-500' : 'bg-gray-300'"
                     class="w-12 h-8 rounded-full flex items-center transition-colors duration-300">
                     <span :class="toggleState1 ? 'translate-x-5' : 'translate-x-1'"
                         class="w-6 h-6 bg-white rounded-full shadow-md transform transition-transform duration-300"></span>
@@ -163,7 +220,8 @@
         <div class="flex-1 text-center p-2 m-1 ">
             <div class="ml-2 flex items-center space-x-2 p-2 m-1">
                 <!-- Toggle Button -->
-                <button @click="toggleState2 = !toggleState2 ; toggleState1 = false" :class="toggleState2 ? 'bg-blue-500' : 'bg-gray-300'"
+                <button @click="toggleState2 = !toggleState2 ; toggleState1 = false"
+                    :class="toggleState2 ? 'bg-blue-500' : 'bg-gray-300'"
                     class="w-12 h-8 rounded-full flex items-center transition-colors duration-300 mt-2">
                     <span :class="toggleState2 ? 'translate-x-5' : 'translate-x-1'"
                         class="w-6 h-6 bg-white rounded-full shadow-md transform transition-transform duration-300"></span>
@@ -177,7 +235,7 @@
 
     <div class="flex justify-between items-center w-full">
         <!-- enter supplier column -->
-        <div class="flex-1 text-center p-2 m-1 "> 
+        <div class="flex-1 text-center p-2 m-1 ">
             <input v-if="!toggleState2" v-model="supplier_col_name" type="text" placeholder="Enter New supplier column"
                 class="flex-1 border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
         </div>
@@ -202,9 +260,18 @@
                 class="flex-1 border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
         </div>
 
-        <div class="flex-1 text-left p-2 m-1 "> <button @click="add_columns"
-                class="bg-blue-600 text-white px-4 py-2 rounded-lg shadow hover:bg-blue-700 transition">
-                Add</button>
+        <div class="flex-1 text-left p-2 m-1 relative group inline-block"> 
+            <button @click="add_columns"
+                class="w-10 h-10 flex items-center justify-center rounded-full  hover:bg-blue-700 transition">
+                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2"
+                            stroke="green" class="w-6 h-6">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+                        </svg>
+            </button>
+            <span class="absolute bottom-full mb-1 hidden group-hover:block 
+                        bg-gray-800 text-white text-xs rounded py-1 px-2 whitespace-nowrap">
+                    Add New Case
+            </span>
         </div>
     </div>
 
@@ -221,10 +288,14 @@
             <input type="text" v-model="row[2]"
                 class="w-64 bg-gray-100 px-4 py-2 rounded-lg text-gray-700 font-medium focus:outline-none focus:ring-2 focus:ring-blue-500" />
         </div>
-        <div class="flex-1 p-2 m-1 ">
+        <div class="flex-1 p-2 m-1 relative group inline-block">
             <button @click="remove_add_columns(index)" class="text-red-600 hover:text-red-800 font-bold">
                 ✕
             </button>
+            <span class="absolute bottom-full mb-1 hidden group-hover:block 
+                            bg-gray-800 text-white text-xs rounded py-1 px-2 whitespace-nowrap">
+                        Remove this case
+            </span>
         </div>
     </div>
 

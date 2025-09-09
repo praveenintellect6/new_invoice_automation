@@ -53,12 +53,15 @@ class Cases(models.Model):
     gst=models.CharField(max_length=10)
     min=models.CharField(max_length=10)
     max=models.CharField(max_length=10)
+    gst_mapp = models.CharField(max_length=155, blank=True, default="")
+    profit_mapp = models.CharField(max_length=155, blank=True, default="")
 
 class CaseEditingState(models.Model):
     supplier=models.ForeignKey(NewSupplier, on_delete=models.CASCADE)
     case_state=models.JSONField(default=list, blank=True)
     gst=models.CharField(max_length=10)
-
+    gst_mapp=models.CharField(max_length=155, blank=True, default="")
+    profit_mapp=models.CharField(max_length=155, blank=True, default="")
 
 
 
