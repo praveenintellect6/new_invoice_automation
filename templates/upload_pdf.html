@@ -1,0 +1,15 @@
+<div>
+    <div class="row mt-2 bg-blue-200 shadow-md">
+        <div class="flex-1 p-4 m-2 ">
+             <label for="supplier_name" class="block mb-3 text-gray-700 font-semibold">
+                Extract PDF Invoices
+            </label>
+            <input type="date" v-model="pdf_date" class="form-control w-50 mb-3">
+            <input type="file" multiple accept=".pdf" @change="handlePdfFileUpload" />
+            <button @click="submitPdfFiles" class="submit-button mt-2">Upload Excel</button>
+        </div>
+        <div class="flex-1 p-4 m-2 ">
+
+        </div>
+    </div>
+</div>

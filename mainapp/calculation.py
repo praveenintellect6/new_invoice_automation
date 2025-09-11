@@ -10,6 +10,7 @@ import os
 import shutil
 from .purchase_report import PurchaseReportClass
 
+
 class ReportCalculation:
     #*kwargs(df=df)
     def __init__(self, file=None, df=None,excel_date=None,supp=None):
@@ -55,6 +56,8 @@ class ReportCalculation:
                 self.equation.append(key)
             else:
                 self.direct.append(key)
+        print(self.equation)
+        print(self.direct)
     
     def read_excel(self,):
         df = pd.read_excel("196_Invoice_4321420874.xlsx")
@@ -96,8 +99,7 @@ class ReportCalculation:
         self.wb.save(filepathname)
         self.wb.close()
         return self.sample
-        #return self.wb
-        #self.sample.to_excel(f"{self.supplier_name}.xlsx", index=False)
+
     
     def getProcessedReport(self):
         return self.sample
@@ -117,7 +119,6 @@ class ReportCalculation:
                     return i['profit']+' %'
             return None
         
-        print(self.combine_report['PART DESCRIPTION'])
         self.combine_report["PROFIT%"] = self.combine_report[self.profit_mapp].apply(findpro)
         self.combine_report["PROFIT_per"] = self.combine_report[self.profit_mapp].apply(findper)
 
@@ -127,6 +128,7 @@ class ReportCalculation:
             gst=float(self.gst)/100
             return round((value * gst),2)
         self.combine_report["GST"] = self.combine_report[self.gst_mapp].apply(findgst)
+        print(self.combine_report["GST"])
 
     def MappToPurchaseReport(self):
         #create purachase report dataframe
@@ -153,13 +155,6 @@ class ReportCalculation:
                         self.report[key] = self.df[value]
                         #insert data from purchase report df to combined df
                         self.combine_report[key]=self.df[value]
-                        
-                        # if key == self.profit_mapp:
-                        #     print("yes profit")
-                        #     self.findProfit()
-
-                        # if key == self.gst_mapp:
-                        #     self.findGst()
             
             if key in self.equation:
                 #for i in sorted(self.combine_report.columns, key=len,reverse=True):
@@ -172,13 +167,6 @@ class ReportCalculation:
                 self.equation_token_mapp[key]=tokens
                 self.combine_report[key] =  eval(self.equation_token_mapp[key]).round(2)
                 
-                # if key == self.profit_mapp:
-                #         self.findProfit()
-                #         print("yes profit")
-                
-                # if key == self.gst_mapp:
-                #         self.findGst()
-                #         print("yes gst")
             if key == self.profit_mapp:
                     self.findProfit()
 

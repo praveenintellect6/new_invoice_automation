@@ -11,6 +11,7 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   <link rel="stylesheet" href="static/style.css">
+   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" />
   <style>
     html {
       overflow-y: hidden;
@@ -149,10 +150,11 @@
 
         <!-- Upload PDF -->
         <div v-if="activeTab==='pdf'">
-          <h4>Upload PDF Files</h4>
+          {% include "upload_pdf.html" %}
+          <!-- <h4>Upload PDF Files</h4>
           <input type="date" v-model="corr_date" class="form-control w-50 mb-3">
           <input type="file" multiple accept="application/pdf" @change="handlepdfFiles" />
-          <button @click="submitpdfFiles" class="submit-button mt-2">Upload PDF</button>
+          <button @click="submitpdfFiles" class="submit-button mt-2">Upload PDF</button> -->
         </div>
 
         <!-- Invoice Table -->
@@ -246,12 +248,77 @@
           edit_excel_date:'',
           excelFiles: [],
           edit_excelFiles:[],
-          loading: false,
+          //upload_pdf.html variable=============================================
+          pdf_date:'',
+          pdfFiles: [],
+
         };
 
       },
       methods: {
-        // upload_excel.html methods=============================================
+        // upload_pdf.html methods=============================================
+        handlePdfFileUpload(event) {
+            this.pdfFiles = Array.from(event.target.files);
+            console.log("Selected files:", this.pdfFiles);
+         },
+         async submitPdfFiles(){
+
+          if (this.pdf_date === ""){
+              Swal.fire({
+              icon: 'warning',
+              title: 'Warning',
+              text: 'Please Input Date!',
+              confirmButtonColor: '#f59e0b'
+            });
+            }else if(this.pdfFiles.length === 0){
+              Swal.fire({
+              icon: 'warning',
+              title: 'Warning',
+              text: 'Please Select One Excel file',
+              confirmButtonColor: '#f59e0b'
+            });
+            }else{
+              try{
+                  const baseUrl = window.location.origin;
+                  const formData = new FormData();
+                  this.pdfFiles.forEach((file) => {
+                  formData.append("files", file);
+                  });
+                  formData.append("date", this.pdf_date); 
+                  const response = await axios.post(`${baseUrl}/submit_pdf_files/`, formData, {
+                    headers: {
+                      "Content-Type": "multipart/form-data"
+                    }
+                  });
+                  if (response.data.status === 'success') {
+                     Swal.fire({
+                        icon: "success",
+                        title: "Upload Complete",
+                        text: "Your Excel files were uploaded successfully",
+                        confirmButtonColor: "#3b82f6"
+                      });
+                  }else{
+                     Swal.fire({
+                        icon: "error",
+                        title: "Failed",
+                        text: response.data.message || "Upload failed",
+                        confirmButtonColor: "#ef4444"
+                      });
+                  }
+                
+                }catch(error){
+                    console.error("Upload failed:", error);
+                    Swal.fire({
+                      icon: "error",
+                      title: "Error",
+                      text: "Something went wrong during upload",
+                      confirmButtonColor: "#ef4444"
+                    });
+                }
+            }
+         },
+
+        // upload_excel.html methods===========================================
         async edit_submitExcelFiles(){
           if (this.edit_excel_date === ""){
               Swal.fire({
@@ -260,8 +327,7 @@
               text: 'Please Input Date!',
               confirmButtonColor: '#f59e0b'
             });
-            }
-            else if(this.edit_excelFiles.length === 0){
+            }else if(this.edit_excelFiles.length === 0){
               Swal.fire({
               icon: 'warning',
               title: 'Warning',

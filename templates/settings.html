@@ -63,6 +63,7 @@
                     <div class="flex-1 p-2 m-1 relative group inline-block">
                         <div class="flex justify-between items-center">
                             <label for="gst_map_input" class="font-medium">Mapp GST</label>
+                            <span  class="ml-3 material-symbols-outlined">arrow_forward</span>
                             <input type="text" v-model="gst_map_input" id="gst_map_input" placeholder="GST Mapp"
                                 required class="ml-2 border border-gray-300 rounded-md px-2 py-2 focus:outline-none 
                                     focus:ring-2 focus:ring-blue-500 w-32" />
@@ -77,6 +78,7 @@
                     <div class="flex-1  p-2 m-1 relative group inline-block">
                         <div class="flex justify-between items-center">
                             <label for="profit_map_input" class="font-medium">Mapp Profit</label>
+                            <span class="ml-3 material-symbols-outlined">arrow_forward</span>
                             <input type="text" v-model="profit_map_input" id="profit_map_input"
                                 placeholder="Profit Mapp" required class="ml-2 border border-gray-300 rounded-md px-2 py-2 focus:outline-none 
                                     focus:ring-2 focus:ring-blue-500 w-32" />
@@ -279,10 +281,13 @@
         <div class="flex-1 text-center p-2 m-1 ">
             <input type="text" v-model="row[0]"
                 class="w-64 bg-gray-100 px-4 py-2 rounded-lg text-gray-700 font-medium focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                 <span v-if="row[1] && row[0]" class="ml-3 material-symbols-outlined">arrow_forward</span>
         </div>
+       
         <div class="flex-1 text-center p-2 m-1 ">
             <input type="text" v-model="row[1]"
                 class="w-64 bg-gray-100 px-4 py-2 rounded-lg text-gray-700 font-medium focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                <span v-if="row[1] && row[2]" style="font-size:30px;vertical-align:middle;" class="ml-3">=</span>
         </div>
         <div class="flex-1 text-center p-2 m-1 ">
             <input type="text" v-model="row[2]"
@@ -314,3 +319,5 @@
 <div class="mt-5 justify-between items-center w-full">
     <span></span>
 </div>
+
+   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" />

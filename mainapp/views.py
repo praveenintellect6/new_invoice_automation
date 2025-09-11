@@ -7,6 +7,7 @@ from .utils import *
 import os
 from dotenv import load_dotenv
 from .calculation import *
+from .extraction import *
 from django.conf import settings
 from datetime import datetime
 from .purchase_report import *
@@ -18,9 +19,43 @@ import time
 # supp=NewSupplier.objects.get(id=23)
 # print(supp.supplier_mapp_col)
 
-
 # rr=NewSupplier.objects.get(supplier_name='wurth')
 # print(rr.supplier_mapp_col)
+
+# ee=Extarction()
+# df1=ee.scrapping(filepath=r"196_Invoice_4321420874.PDF",maildate="25-07-03")
+
+
+
+@csrf_exempt
+def submit_pdf_files(request):
+    if request.method == "POST":
+        files = request.FILES.getlist("files")
+        pdf_date = request.POST.get("date")
+        folder_path = PurchaseReportClass().createFolderByDate(pdf_date)
+        if files:
+            for f in files:
+                path = os.path.join(folder_path, f.name)
+                with open(path, 'wb+') as destination:
+                    for chunk in f.chunks():
+                        destination.write(chunk)
+                try:
+                    extra=Extarction()
+                    df=extra.scrapping(filepath=path,maildate=pdf_date)
+                    supplier_name = df['supplier'].iloc[0]
+                    print(supplier_name)
+                    supp = NewSupplier.objects.get(supplier_name__iexact=supplier_name)
+                    print(supp.supplier_name)
+                    if not supp:
+                        print(f" Supplier not found for {f.name}, skipping...")
+                        continue
+                    rr = ReportCalculation(df=df, file=folder_path, excel_date=pdf_date, supp=supp)
+                    rr.MappToPurchaseReport()
+                    p_df=rr.exportToExcel()
+                    PurchaseReportClass.copy_folder_contents(source_folder=folder_path)
+                except Exception as e:
+                    print(f" Failed to process : {e}")         
+        return JsonResponse({"status": "success"})
 
 @csrf_exempt
 def submit_edit_excel_files(request):
@@ -28,9 +63,7 @@ def submit_edit_excel_files(request):
         files = request.FILES.getlist("files")
         excel_date = request.POST.get("date")
         folder_path = PurchaseReportClass().createFolderByDate(excel_date)
-        print(excel_date)
-        for i in files:
-            print(i.name)
+
         if files:
             for f in files:
                 if f.name.endswith('.xlsx'):
@@ -44,9 +77,9 @@ def submit_edit_excel_files(request):
             report_file = os.path.join(folder_path, f"{excel_date}_PurchaseReport.xlsx")
             if os.path.exists(report_file):
                 os.remove(report_file)
-                print(f" Removed old report: {report_file}")
+                print(f"Removed old report: {report_file}")
         except Exception as e:
-            print(f" Could not remove old report: {e}")
+            print(f"Could not remove old report: {e}")
 
         xlsx_files = [ f for f in os.listdir(folder_path) if f.endswith(".xlsx") and not f.endswith("PurchaseReport.xlsx")]
 
@@ -55,7 +88,7 @@ def submit_edit_excel_files(request):
             try:
                 df=pd.read_excel(file_path, dtype=str)
                 supplier_name = df['supplier'].iloc[0]
-                supp = NewSupplier.objects.filter(supplier_name=supplier_name).first()
+                supp = NewSupplier.objects.filter(supplier_name__iexact=supplier_name).first()
                 if not supp:
                     print(f" Supplier not found for {file}, skipping...")
                     continue
@@ -81,7 +114,7 @@ def submit_excel_files(request):
             df=pd.read_excel(f, dtype=str)
             supplier_name = df['supplier'].iloc[0]
             print(supplier_name)
-            exist = NewSupplier.objects.filter(supplier_name=supplier_name).exists()
+            exist = NewSupplier.objects.filter(supplier_name__iexact=supplier_name).exists()
             if not exist:
                 break
             else:

@@ -8,6 +8,8 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Use a modern font from Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" />
+
 
     <style>
         body {
@@ -17,108 +19,7 @@
     </style>
 
 </head>
-<body class="p-4 sm:p-8">
-    <div class="bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 p-4 rounded" role="alert">
-  <p class="font-bold">Warning</p>
-  <p>Please select a supplier!</p>
-</div>
-
-    <div class="bg-white p-6 rounded-2xl shadow-lg border border-gray-200 max-w-5xl mx-auto">
-        
-        <!-- Header Section -->
-        <div class="flex flex-col sm:flex-row items-center justify-between pb-4 mb-6">
-            <h1 class="text-2xl font-bold text-gray-800 mb-4 sm:mb-0">Columns Edit</h1>
-            <div class="flex items-center space-x-2">
-                <span class="text-gray-600 font-medium">Repco</span>
-                <select class="p-2 border border-gray-300 rounded-lg bg-white text-sm">
-                    <option>Repco</option>
-                    <option>Supplier A</option>
-                    <option>Supplier B</option>
-                </select>
-            </div>
-        </div>
-
-        <!-- Main Content Grid -->
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-
-            <!-- Supplier Columns Section -->
-            <div class="flex flex-col">
-                <h2 class="text-lg font-semibold text-gray-700 mb-2">Supplier Columns</h2>
-                <div class="flex items-center space-x-2 mb-2">
-                    <input type="text" class="w-full p-2 border border-gray-300 rounded-lg bg-gray-100 text-sm" placeholder="-" value="Description">
-                    <input type="checkbox" class="w-4 h-4 text-indigo-600 rounded">
-                </div>
-                <div class="flex items-center space-x-2 mb-2">
-                    <input type="text" class="w-full p-2 border border-gray-300 rounded-lg bg-gray-100 text-sm" placeholder="-" value="Part Number">
-                    <input type="checkbox" class="w-4 h-4 text-indigo-600 rounded">
-                </div>
-                <div class="flex items-center space-x-2 mb-2">
-                    <input type="text" class="w-full p-2 border border-gray-300 rounded-lg bg-gray-100 text-sm" placeholder="-">
-                    <input type="checkbox" class="w-4 h-4 text-indigo-600 rounded">
-                </div>
-            </div>
-
-            <!-- Purchase Report Columns Section -->
-            <div class="flex flex-col">
-                <h2 class="text-lg font-semibold text-gray-700 mb-2">Purchase Report Columns</h2>
-                <div class="flex items-center space-x-2 mb-2">
-                    <select class="w-full p-2 border border-gray-300 rounded-lg bg-gray-100 text-sm">
-                        <option>SELLING PRICE(Inc.GST)</option>
-                    </select>
-                    <input type="checkbox" class="w-4 h-4 text-indigo-600 rounded" checked>
-                </div>
-                <div class="flex items-center space-x-2 mb-2">
-                    <input type="text" class="w-full p-2 border border-gray-300 rounded-lg bg-gray-100 text-sm" placeholder="-" value="PART DESCRIPTION">
-                    <input type="checkbox" class="w-4 h-4 text-indigo-600 rounded">
-                </div>
-                <div class="flex items-center space-x-2 mb-2">
-                    <input type="text" class="w-full p-2 border border-gray-300 rounded-lg bg-gray-100 text-sm" placeholder="-" value="PART NUMBER">
-                    <input type="checkbox" class="w-4 h-4 text-indigo-600 rounded">
-                </div>
-                <div class="flex items-center space-x-2 mb-2">
-                    <input type="text" class="w-full p-2 border border-gray-300 rounded-lg bg-gray-100 text-sm" placeholder="-" value="SELLING PRICE(Exc.GST)">
-                    <input type="checkbox" class="w-4 h-4 text-indigo-600 rounded">
-                </div>
-                <div class="flex items-center space-x-2 mb-2">
-                    <input type="text" class="w-full p-2 border border-gray-300 rounded-lg bg-gray-100 text-sm" placeholder="-" value="ACTUAL PRICE">
-                    <input type="checkbox" class="w-4 h-4 text-indigo-600 rounded">
-                </div>
-            </div>
-
-            <!-- Calculation Section -->
-            <div class="flex flex-col">
-                <h2 class="text-lg font-semibold text-gray-700 mb-2">Calculation</h2>
-                <div class="flex items-center space-x-2 mb-2">
-                    <select class="w-full p-2 border border-gray-300 rounded-lg bg-gray-100 text-sm">
-                        <option>SELLING PRICE (Exc.) + GST</option>
-                    </select>
-                    <input type="checkbox" class="w-4 h-4 text-indigo-600 rounded">
-                    <button class="bg-indigo-600 text-white font-medium py-2 px-4 rounded-lg hover:bg-indigo-700 transition-colors">Add</button>
-                </div>
-                <div class="flex items-center space-x-2 mb-2">
-                    <input type="text" class="w-full p-2 border border-gray-300 rounded-lg bg-gray-100 text-sm" placeholder="-" value="ACTUAL PRICE">
-                    <button class="text-red-500 hover:text-red-700 transition-colors">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                        </svg>
-                    </button>
-                </div>
-                <div class="flex items-center space-x-2 mb-2">
-                    <input type="text" class="w-full p-2 border border-gray-300 rounded-lg bg-gray-100 text-sm" placeholder="-" value="RETAIL INCL GST - GST">
-                    <button class="text-red-500 hover:text-red-700 transition-colors">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                        </svg>
-                    </button>
-                </div>
-            </div>
-
-        </div>
-
-        <!-- Save Button -->
-        <div class="mt-8 flex justify-center">
-            <button class="bg-indigo-600 text-white font-semibold py-3 px-8 rounded-lg shadow-lg hover:bg-indigo-700 transition-colors">save</button>
-        </div>
-    </div>
+<body >
+<span class="material-symbols-outlined">arrow_forward</span>
 </body>
 </html>

@@ -31,4 +31,5 @@ urlpatterns = [
     path("fetch_case/",views.fetch_case,name="fetch_case"),
     path('submit_excel_files/',views.submit_excel_files,name='submit_excel_files'),
     path('submit_edit_excel_files/', views.submit_edit_excel_files, name='submit_edit_excel_files'),
+    path('submit_pdf_files/', views.submit_pdf_files, name='submit_pdf_files'),
 ]
