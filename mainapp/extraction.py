@@ -6,7 +6,7 @@ from fileinput import filename
 from .models import *
 from .purchase_report import PurchaseReportClass
 
-class Extarction:
+class Extraction:
     def __init__(self):
         self.supplier_obj=SupplierSelection()
         self.supplier=''

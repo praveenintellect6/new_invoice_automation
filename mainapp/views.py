@@ -40,7 +40,7 @@ def submit_pdf_files(request):
                     for chunk in f.chunks():
                         destination.write(chunk)
                 try:
-                    extra=Extarction()
+                    extra=Extraction()
                     df=extra.scrapping(filepath=path,maildate=pdf_date)
                     supplier_name = df['supplier'].iloc[0]
                     print(supplier_name)
