@@ -25,6 +25,46 @@ import time
 # ee=Extarction()
 # df1=ee.scrapping(filepath=r"196_Invoice_4321420874.PDF",maildate="25-07-03")
 
+@csrf_exempt
+def monthReportGenerate(request):
+    if request.method == "POST":
+        date_str= request.POST.get("report_month")
+        year, month = date_str.split("-")
+        month_name = datetime.strptime(month, "%m").strftime("%b")
+        folder_path= os.path.join('media',year,month_name)
+        files = os.listdir(folder_path)
+        file_list= []
+        for i in files:
+            file_path = os.path.join(folder_path, i)
+            files = [f for f in os.listdir(file_path) if os.path.isfile(os.path.join(file_path, f))]
+            for j in files:
+                if "PurchaseReport" in j:
+                    file_list.append(os.path.join(file_path,j))
+                    
+        pp=PurchaseReportClass()
+        pp.monthlyPurchaseReport(file_list=file_list)
+
+            # if os.path.isfile(file_path):
+            #     all_files.append(file_path)
+        # file_list=[]
+        # files = [f.name for f in folder_path.iterdir() if f.is_file() and "PurchaseReport" in f.name]
+        # print(files)
+        # for i in files:
+        #     path=os.path.join(folder_path,i)
+            # files = [f.name for f in folder_path.iterdir() if f.is_file() and "PurchaseReport" in f.name]
+            # files = [f for f in os.listdir(folder_path) if os.path.isfile(os.path.join(folder_path, f))]
+            # print(files)
+
+                # print(os.listdir(k))
+            # for i in path:
+            #     files = [f.name for f in folder_path.iterdir() if f.is_file() and "PurchaseReport" in f.name]
+            #     print(files)
+                # if "PurchaseReport" in i:
+                #     file_list.append(i)
+
+
+        return JsonResponse({"status": "success"})
+    return JsonResponse({"status": "error", "message": "POST request required"}, status=405)
 
 
 @csrf_exempt
@@ -40,18 +80,16 @@ def submit_pdf_files(request):
                     for chunk in f.chunks():
                         destination.write(chunk)
                 try:
-                    extra=Extraction()
-                    df=extra.scrapping(filepath=path,maildate=pdf_date)
+                    extra= Extraction()
+                    df= extra.scrapping(filepath=path,maildate=pdf_date)
                     supplier_name = df['supplier'].iloc[0]
-                    print(supplier_name)
                     supp = NewSupplier.objects.get(supplier_name__iexact=supplier_name)
-                    print(supp.supplier_name)
                     if not supp:
                         print(f" Supplier not found for {f.name}, skipping...")
                         continue
                     rr = ReportCalculation(df=df, file=folder_path, excel_date=pdf_date, supp=supp)
                     rr.MappToPurchaseReport()
-                    p_df=rr.exportToExcel()
+                    p_df= rr.exportToExcel()
                     PurchaseReportClass.copy_folder_contents(source_folder=folder_path)
                 except Exception as e:
                     print(f" Failed to process : {e}")         
@@ -80,15 +118,13 @@ def submit_edit_excel_files(request):
                 print(f"Removed old report: {report_file}")
         except Exception as e:
             print(f"Could not remove old report: {e}")
-
         xlsx_files = [ f for f in os.listdir(folder_path) if f.endswith(".xlsx") and not f.endswith("PurchaseReport.xlsx")]
-
         for file in xlsx_files:
             file_path = os.path.join(folder_path, file)
             try:
                 df=pd.read_excel(file_path, dtype=str)
                 supplier_name = df['supplier'].iloc[0]
-                supp = NewSupplier.objects.filter(supplier_name__iexact=supplier_name).first()
+                supp = NewSupplier.objects.filter(supplier_name=supplier_name).first()
                 if not supp:
                     print(f" Supplier not found for {file}, skipping...")
                     continue
@@ -100,10 +136,8 @@ def submit_edit_excel_files(request):
                 PurchaseReportClass.copy_folder_contents(source_folder=folder_path)
             except Exception as e:
                 print(f" Failed to process {file}: {e}")
-
         return JsonResponse({"status": "success"})
     return JsonResponse({"status": "failed", "message": "Invalid request"}, status=400)
-
 
 @csrf_exempt 
 def submit_excel_files(request):
@@ -113,9 +147,10 @@ def submit_excel_files(request):
         for f in files:
             df=pd.read_excel(f, dtype=str)
             supplier_name = df['supplier'].iloc[0]
-            print(supplier_name)
-            exist = NewSupplier.objects.filter(supplier_name__iexact=supplier_name).exists()
-            if not exist:
+            print("supplier_name===", supplier_name)
+            exist = NewSupplier.objects.filter(supplier_name=supplier_name).exists()
+            if not exist :
+                print("supplier not found",supplier_name)
                 break
             else:
                 supp = NewSupplier.objects.filter(supplier_name=supplier_name).first()

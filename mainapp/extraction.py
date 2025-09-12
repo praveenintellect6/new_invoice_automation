@@ -148,7 +148,7 @@ class Wurth:
             "Price AUD":pad(Price_AUD),
             "Quantity":pad(Quantity),
             "Pack_Unit":pad(Pack_Unit)
-        })
+        },dtype=str)
         name, ext = os.path.splitext(filename)
         folder_path = PurchaseReportClass().createFolderByDate(maildata)
         real_path=os.path.join(folder_path,name)
@@ -232,7 +232,7 @@ class JohnMcGrath:
             "unit_Net":pad(unit_Net),
             "GST_Code":pad(GST_Code),
             "Total":pad(total)
-        })
+        },dtype=str)
         name, ext = os.path.splitext(filename)
         folder_path = PurchaseReportClass().createFolderByDate(maildata)
         real_path=os.path.join(folder_path,name)
@@ -303,7 +303,7 @@ class Yhi:
                         "QUANTITY":pad(QUANTITY),
                         "UNIT PRICE":pad(UNIT_PRICE),
                         "AMOUNT":pad(AMOUNT)
-                        })
+                        },dtype=str)
         name, ext = os.path.splitext(filename)
         folder_path = PurchaseReportClass().createFolderByDate(maildata)
         real_path=os.path.join(folder_path,name)
@@ -383,7 +383,7 @@ class Repco:
                             "total_gst":pad(total_gst),
                             "s":pad(s),
                             "TOTAL INCL GST":pad(total_incl_gst)
-                            })
+                            },dtype=str)
         name, ext = os.path.splitext(filename)
         folder_path = PurchaseReportClass().createFolderByDate(maildata)
         real_path=os.path.join(folder_path,name)

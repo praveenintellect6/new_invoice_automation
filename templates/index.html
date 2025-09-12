@@ -11,7 +11,7 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   <link rel="stylesheet" href="static/style.css">
-   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" />
+
   <style>
     html {
       overflow-y: hidden;
@@ -114,6 +114,11 @@
           <i class="fas fa-calendar-alt"></i> Month Report
         </button>
 
+        <button :class="{active: activeTab==='delete_invoice'}" @click="activeTab='delete_invoice'"
+          @mouseover="activeTab='delete_invoice'">
+          <i class="fas fa-trash"></i> Delete Invoice
+        </button>
+
         <button :class="{active: activeTab==='settings'}" @click="activeTab='settings'"
           @mouseover="activeTab='settings'">
           <i class="fas fa-cog"></i> Settings
@@ -137,10 +142,7 @@
 
         <!-- Upload Image invoice -->
         <div v-if="activeTab==='image'">
-          <h4>Upload Image Invoice</h4>
-          <input type="date" v-model="corr_date" class="form-control w-50 mb-3">
-          <input type="file" multiple accept=".xlsx" @change="handleFileUpload" />
-          <button @click="submitFiles" class="submit-button mt-2">Upload Image</button>
+
         </div>
 
         <!-- Upload Excel -->
@@ -176,11 +178,8 @@
 
         <!-- Month Report -->
         <div v-if="activeTab==='month'">
-          <h4>Download Month Report</h4>
-          <!-- <form @submit.prevent="submitMonth" class="d-flex align-items-center gap-3">
-            <input type="month" v-model="selectedMonth" class="form-control w-25">
-            <button type="submit" class="submit-button">Download</button>
-          </form> -->
+          {% include "month.html" %}
+
         </div>
 
         <!-- edit_case -->
@@ -190,8 +189,11 @@
 
         <!-- column_mapping -->
         <div v-if="activeTab==='column_mapping'">
-         
+        </div>
 
+         <!-- Delete Invoice -->
+        <div v-if="activeTab==='delete_invoice'">
+          <div>delete invoice</div>
         </div>
 
         <!-- Settings -->
@@ -215,7 +217,6 @@
           files: [],
           pdfFiles: [],
           corr_date: "",
-          selectedMonth: "",
           // setting.html variables======================================
           suppliers: [],
           selectedSupplier: '',
@@ -241,224 +242,268 @@
           profit_Case: '',
           add_case_list: [],
           gst_input: '',
-          gst_map_input:'',
-          profit_map_input:'',
-          // upload_excel.html variable ======================================
-          excel_date:'',
-          edit_excel_date:'',
+          gst_map_input: '',
+          profit_map_input: '',
+          // upload_excel.html variable =====================================
+          excel_date: '',
+          edit_excel_date: '',
           excelFiles: [],
-          edit_excelFiles:[],
-          //upload_pdf.html variable=============================================
-          pdf_date:'',
+          edit_excelFiles: [],
+          //upload_pdf.html variable ========================================
+          pdf_date: '',
           pdfFiles: [],
+          //month.html variable =============================================
+          report_month: '',
 
         };
 
       },
       methods: {
-        // upload_pdf.html methods=============================================
-        handlePdfFileUpload(event) {
-            this.pdfFiles = Array.from(event.target.files);
-            console.log("Selected files:", this.pdfFiles);
-         },
-         async submitPdfFiles(){
-
-          if (this.pdf_date === ""){
-              Swal.fire({
+        //month.html methods ================================================
+        async monthReportGenerate() {
+          if (this.report_month === "") {
+            Swal.fire({
               icon: 'warning',
               title: 'Warning',
               text: 'Please Input Date!',
               confirmButtonColor: '#f59e0b'
             });
-            }else if(this.pdfFiles.length === 0){
+          } else {
+            try {
+              alert(this.report_month);
+              const baseUrl = window.location.origin;
+              const response = await axios.post(
+                `${baseUrl}/monthReportGenerate/`,
+                new URLSearchParams({ report_month: this.report_month }),
+                {
+                  headers: {
+                    "Content-Type": "application/x-www-form-urlencoded"
+                  }
+                }
+              );
+            } catch (error) {
+
+            }
+            if (response.data.status === 'success') {
               Swal.fire({
+                icon: "success",
+                title: "Upload Complete",
+                text: "Purchase Report Created Successfull!",
+                confirmButtonColor: "#3b82f6"
+              });
+            } else {
+              Swal.fire({
+                icon: "error",
+                title: "Failed",
+                text: response.data.message || "failed to Create Purchase Report!",
+                confirmButtonColor: "#ef4444"
+              });
+            }
+          }
+        },
+        // upload_pdf.html methods==========================================
+        handlePdfFileUpload(event) {
+          this.pdfFiles = Array.from(event.target.files);
+          console.log("Selected files:", this.pdfFiles);
+        },
+        async submitPdfFiles() {
+
+          if (this.pdf_date === "") {
+            Swal.fire({
+              icon: 'warning',
+              title: 'Warning',
+              text: 'Please Input Date!',
+              confirmButtonColor: '#f59e0b'
+            });
+          } else if (this.pdfFiles.length === 0) {
+            Swal.fire({
               icon: 'warning',
               title: 'Warning',
               text: 'Please Select One Excel file',
               confirmButtonColor: '#f59e0b'
             });
-            }else{
-              try{
-                  const baseUrl = window.location.origin;
-                  const formData = new FormData();
-                  this.pdfFiles.forEach((file) => {
-                  formData.append("files", file);
-                  });
-                  formData.append("date", this.pdf_date); 
-                  const response = await axios.post(`${baseUrl}/submit_pdf_files/`, formData, {
-                    headers: {
-                      "Content-Type": "multipart/form-data"
-                    }
-                  });
-                  if (response.data.status === 'success') {
-                     Swal.fire({
-                        icon: "success",
-                        title: "Upload Complete",
-                        text: "Your Excel files were uploaded successfully",
-                        confirmButtonColor: "#3b82f6"
-                      });
-                  }else{
-                     Swal.fire({
-                        icon: "error",
-                        title: "Failed",
-                        text: response.data.message || "Upload failed",
-                        confirmButtonColor: "#ef4444"
-                      });
-                  }
-                
-                }catch(error){
-                    console.error("Upload failed:", error);
-                    Swal.fire({
-                      icon: "error",
-                      title: "Error",
-                      text: "Something went wrong during upload",
-                      confirmButtonColor: "#ef4444"
-                    });
+          } else {
+            try {
+              const baseUrl = window.location.origin;
+              const formData = new FormData();
+              this.pdfFiles.forEach((file) => {
+                formData.append("files", file);
+              });
+              formData.append("date", this.pdf_date);
+              const response = await axios.post(`${baseUrl}/submit_pdf_files/`, formData, {
+                headers: {
+                  "Content-Type": "multipart/form-data"
                 }
+              });
+              if (response.data.status === 'success') {
+                Swal.fire({
+                  icon: "success",
+                  title: "Upload Complete",
+                  text: "Your Excel files were uploaded successfully",
+                  confirmButtonColor: "#3b82f6"
+                });
+              } else {
+                Swal.fire({
+                  icon: "error",
+                  title: "Failed",
+                  text: response.data.message || "Upload failed",
+                  confirmButtonColor: "#ef4444"
+                });
+              }
+
+            } catch (error) {
+              console.error("Upload failed:", error);
+              Swal.fire({
+                icon: "error",
+                title: "Error",
+                text: "Something went wrong during upload",
+                confirmButtonColor: "#ef4444"
+              });
             }
-         },
+          }
+        },
 
         // upload_excel.html methods===========================================
-        async edit_submitExcelFiles(){
-          if (this.edit_excel_date === ""){
-              Swal.fire({
+        async edit_submitExcelFiles() {
+          if (this.edit_excel_date === "") {
+            Swal.fire({
               icon: 'warning',
               title: 'Warning',
               text: 'Please Input Date!',
               confirmButtonColor: '#f59e0b'
             });
-            }else if(this.edit_excelFiles.length === 0){
-              Swal.fire({
+          } else if (this.edit_excelFiles.length === 0) {
+            Swal.fire({
               icon: 'warning',
               title: 'Warning',
               text: 'Please Select One Excel file',
               confirmButtonColor: '#f59e0b'
             });
-            }
-            else{
-              try{
-                  const baseUrl = window.location.origin;
-                  const formData = new FormData();
-                  this.edit_excelFiles.forEach((file) => {
-                  formData.append("files", file);
-                  });
-                  formData.append("date", this.edit_excel_date); 
-                  const response = await axios.post(`${baseUrl}/submit_edit_excel_files/`, formData, {
-                    headers: {
-                      "Content-Type": "multipart/form-data"
-                    }
-                  });
-                  if (response.data.status === 'success') {
-                     Swal.fire({
-                        icon: "success",
-                        title: "Upload Complete",
-                        text: "Your Excel files were uploaded successfully",
-                        confirmButtonColor: "#3b82f6"
-                      });
-                  }else{
-                     Swal.fire({
-                        icon: "error",
-                        title: "Failed",
-                        text: response.data.message || "Upload failed",
-                        confirmButtonColor: "#ef4444"
-                      });
-                  }
-                
-                }catch(error){
-                    console.error("Upload failed:", error);
-                    Swal.fire({
-                      icon: "error",
-                      title: "Error",
-                      text: "Something went wrong during upload",
-                      confirmButtonColor: "#ef4444"
-                    });
+          }
+          else {
+            try {
+              const baseUrl = window.location.origin;
+              const formData = new FormData();
+              this.edit_excelFiles.forEach((file) => {
+                formData.append("files", file);
+              });
+              formData.append("date", this.edit_excel_date);
+              const response = await axios.post(`${baseUrl}/submit_edit_excel_files/`, formData, {
+                headers: {
+                  "Content-Type": "multipart/form-data"
                 }
-            }
-        },
-        async submitExcelFiles(){
-
-            if (this.excel_date === ""){
-              Swal.fire({
-              icon: 'warning',
-              title: 'Warning',
-              text: 'Please Input Date!',
-              confirmButtonColor: '#f59e0b'
-            });
-            }
-            else if(this.excelFiles.length === 0){
-              Swal.fire({
-              icon: 'warning',
-              title: 'Warning',
-              text: 'Please Select One Excel file',
-              confirmButtonColor: '#f59e0b'
-            });
-            }
-            else{
-              // this.loading = true;
-               Swal.fire({
-                  title: "Uploading...",
-                  text: "Please wait while we process your files",
-                  allowOutsideClick: false,
-                  allowEscapeKey: false,
-                  didOpen: () => {
-                    Swal.showLoading();
-                  },
+              });
+              if (response.data.status === 'success') {
+                Swal.fire({
+                  icon: "success",
+                  title: "Upload Complete",
+                  text: "Your Excel files were uploaded successfully",
+                  confirmButtonColor: "#3b82f6"
                 });
-              try{
-                  const baseUrl = window.location.origin;
-                  const formData = new FormData();
-                  this.excelFiles.forEach((file) => {
-                  formData.append("files", file);
-                  });
-                  formData.append("date", this.excel_date); 
-                  const response = await axios.post(`${baseUrl}/submit_excel_files/`, formData, {
-                    headers: {
-                      "Content-Type": "multipart/form-data"
-                    }
-                  });
-                  if (response.data.status === 'success') {
-                     Swal.fire({
-                        icon: "success",
-                        title: "Upload Complete",
-                        text: "Your Excel files were uploaded successfully",
-                        confirmButtonColor: "#3b82f6"
-                      });
-                  }else{
-                     Swal.fire({
-                        icon: "error",
-                        title: "Failed",
-                        text: response.data.message || "Upload failed",
-                        confirmButtonColor: "#ef4444"
-                      });
-                  }
-                
-                }catch(error){
-                    console.error("Upload failed:", error);
-                    Swal.fire({
-                      icon: "error",
-                      title: "Error",
-                      text: "Something went wrong during upload",
-                      confirmButtonColor: "#ef4444"
-                    });
-                }
+              } else {
+                Swal.fire({
+                  icon: "error",
+                  title: "Failed",
+                  text: response.data.message || "Upload failed",
+                  confirmButtonColor: "#ef4444"
+                });
+              }
+
+            } catch (error) {
+              console.error("Upload failed:", error);
+              Swal.fire({
+                icon: "error",
+                title: "Error",
+                text: "Something went wrong during upload",
+                confirmButtonColor: "#ef4444"
+              });
             }
-          },
-        edit_handleExcelFileUpload(event){
-            this.edit_excelFiles = Array.from(event.target.files);
-            console.log("Selected files:", this.edit_excelFiles);
+          }
+        },
+        async submitExcelFiles() {
+
+          if (this.excel_date === "") {
+            Swal.fire({
+              icon: 'warning',
+              title: 'Warning',
+              text: 'Please Input Date!',
+              confirmButtonColor: '#f59e0b'
+            });
+          }
+          else if (this.excelFiles.length === 0) {
+            Swal.fire({
+              icon: 'warning',
+              title: 'Warning',
+              text: 'Please Select One Excel file',
+              confirmButtonColor: '#f59e0b'
+            });
+          }
+          else {
+            // this.loading = true;
+            Swal.fire({
+              title: "Uploading...",
+              text: "Please wait while we process your files",
+              allowOutsideClick: false,
+              allowEscapeKey: false,
+              didOpen: () => {
+                Swal.showLoading();
+              },
+            });
+            try {
+              const baseUrl = window.location.origin;
+              const formData = new FormData();
+              this.excelFiles.forEach((file) => {
+                formData.append("files", file);
+              });
+              formData.append("date", this.excel_date);
+              const response = await axios.post(`${baseUrl}/submit_excel_files/`, formData, {
+                headers: {
+                  "Content-Type": "multipart/form-data"
+                }
+              });
+              if (response.data.status === 'success') {
+                Swal.fire({
+                  icon: "success",
+                  title: "Upload Complete",
+                  text: "Your Excel files were uploaded successfully",
+                  confirmButtonColor: "#3b82f6"
+                });
+              } else {
+                Swal.fire({
+                  icon: "error",
+                  title: "Failed",
+                  text: response.data.message || "Upload failed",
+                  confirmButtonColor: "#ef4444"
+                });
+              }
+
+            } catch (error) {
+              console.error("Upload failed:", error);
+              Swal.fire({
+                icon: "error",
+                title: "Error",
+                text: "Something went wrong during upload",
+                confirmButtonColor: "#ef4444"
+              });
+            }
+          }
+        },
+        edit_handleExcelFileUpload(event) {
+          this.edit_excelFiles = Array.from(event.target.files);
+          console.log("Selected files:", this.edit_excelFiles);
         },
         handleExcelFileUpload(event) {
-            this.excelFiles = Array.from(event.target.files);
-            console.log("Selected files:", this.excelFiles);
+          this.excelFiles = Array.from(event.target.files);
+          console.log("Selected files:", this.excelFiles);
         },
         // setting.html methods=============================================
-        async supplier_edit_case_change(){
-              this.gst_input = '';
-              this.gst_mapp='';
-              this.profit_mapp='';
+        async supplier_edit_case_change() {
+          this.gst_input = '';
+          this.gst_mapp = '';
+          this.profit_mapp = '';
           try {
             const baseUrl = window.location.origin;
-            const response = await axios.post(`${baseUrl}/fetch_case/`, new URLSearchParams({ supplier_id: this.supplier_edit_case}),
+            const response = await axios.post(`${baseUrl}/fetch_case/`, new URLSearchParams({ supplier_id: this.supplier_edit_case }),
               {
                 headers: {
                   "Content-Type": "application/x-www-form-urlencoded"
@@ -471,8 +516,8 @@
               // this.edit_column_list = response.data.column_state;
               this.add_case_list = response.data.case_state;
               this.gst_input = response.data.gst;
-              this.gst_map_input=response.data.gst_mapp;
-              this.profit_map_input=response.data.profit_mapp;
+              this.gst_map_input = response.data.gst_mapp;
+              this.profit_map_input = response.data.profit_mapp;
             }
 
           }
@@ -505,8 +550,8 @@
                 new URLSearchParams({
                   supplier_id: this.supplier_edit_case,
                   gst: this.gst_input,
-                  gst_mapp:this.gst_map_input,
-                  profit_mapp:this.profit_map_input,
+                  gst_mapp: this.gst_map_input,
+                  profit_mapp: this.profit_map_input,
                   add_case_list: JSON.stringify(this.add_case_list)
                 }),
                 {
@@ -529,15 +574,15 @@
         },
 
         async addCase() {
-          if (this.min_case === '' || this.max_case === '' || this.profit_Case === ''){
+          if (this.min_case === '' || this.max_case === '' || this.profit_Case === '') {
             Swal.fire({
               icon: 'warning',
               title: 'Warning',
               text: 'Please Input Fields!',
               confirmButtonColor: '#f59e0b'
             });
-          } 
-          else if(isNaN(this.min_case) || isNaN(this.max_case) || isNaN(this.profit_Case)){
+          }
+          else if (isNaN(this.min_case) || isNaN(this.max_case) || isNaN(this.profit_Case)) {
             Swal.fire({
               icon: 'warning',
               title: 'Warning',
@@ -545,11 +590,11 @@
               confirmButtonColor: '#f59e0b'
             });
           }
-          else{
-          this.add_case_list.push([this.min_case, this.max_case, this.profit_Case]);
-          this.min_case = '';
-          this.max_case = '';
-          this.profit_Case = '';
+          else {
+            this.add_case_list.push([this.min_case, this.max_case, this.profit_Case]);
+            this.min_case = '';
+            this.max_case = '';
+            this.profit_Case = '';
           }
         },
 
@@ -675,7 +720,7 @@
 
           const confirmed = window.confirm("Are you sure you want to delete this supplier?");
           if (!confirmed) {
-            return; 
+            return;
           }
 
           const baseUrl = window.location.origin;
@@ -724,7 +769,7 @@
             console.error("Error fetching suppliers:", error);
           }
         },
-      // setting.html method end ==========================================
+        // setting.html method end ==========================================
       },
       computed: {
 
@@ -734,7 +779,7 @@
         const today = new Date();
         const year = today.getFullYear();
         const month = String(today.getMonth() + 1).padStart(2, '0');
-        this.selectedMonth = `${year}-${month}`;
+        this.report_month = `${year}-${month}`;
       },
     }).mount("#app");
   </script>

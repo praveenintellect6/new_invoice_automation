@@ -4,6 +4,8 @@ import os
 import shutil
 import time
 from dotenv import load_dotenv
+from openpyxl import load_workbook
+import pandas as pd
 
 class PurchaseReportClass:
     def __init__(self):
@@ -45,5 +47,31 @@ class PurchaseReportClass:
                 else:
                     print(f" Skipped locked file: {src_file}")
 
+    def monthlyPurchaseReport(self,file_list):
+        print("mothly purchase report generating.......")
+        print("length of list:",len(file_list))
+        all_dfs = []
+        for f in file_list:
+            df = pd.read_excel(f,header=3)
+            all_dfs.append(df)
+        final_df = pd.concat(all_dfs, ignore_index=True)
+        print("\nMerged DataFrame:")
+        final_df = final_df.drop(columns=['S.NO'])
+        final_df.insert(0, 'S.NO', range(1, len(final_df) + 1))
+
+        self.template_path=os.getenv("workbook_path")
+        self.wb = load_workbook(self.template_path, data_only=True)
+        ws = self.wb.active
+        headers = [cell.value for cell in ws[4]]
+        start_row = ws.max_row + 1
+        for r_idx, row in enumerate(final_df.to_dict('records'), start=start_row):
+            for c_idx, header in enumerate(headers, start=1):
+                if header == "S.NO":
+                    ws.cell(row=r_idx, column=c_idx, value=r_idx - 4)
+                elif header in row:
+                    ws.cell(row=r_idx, column=c_idx, value=row[header])
+        self.wb.save("mergeoutput.xlsx")
+        self.wb.close()
+ 
 
 

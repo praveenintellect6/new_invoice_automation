@@ -9,10 +9,12 @@ from dotenv import load_dotenv
 import os
 import shutil
 from .purchase_report import PurchaseReportClass
+from datetime import datetime
 
 
 class ReportCalculation:
     #*kwargs(df=df)
+    numeric_column=['TRADE PRICE','TOTAL COUNT','PURCHASED COUNT','TOTAL PRICE','ACTUAL PRICE','SELLING PRICE(Exc.GST)','GST','SELLING PRICE(Inc.GST)']
     def __init__(self, file=None, df=None,excel_date=None,supp=None):
         self.supp=supp
         self.operator=["+", "-", "*", "/"]
@@ -56,8 +58,6 @@ class ReportCalculation:
                 self.equation.append(key)
             else:
                 self.direct.append(key)
-        print(self.equation)
-        print(self.direct)
     
     def read_excel(self,):
         df = pd.read_excel("196_Invoice_4321420874.xlsx")
@@ -72,22 +72,30 @@ class ReportCalculation:
             self.sample['Supplier'] = self.combine_report['supplier']
         else:
             self.sample['Supplier'] = ""
-        if 'maildate' in self.combine_report.columns:
-            self.sample['DATE'] = self.combine_report['maildate']
-        else:
-            self.sample['DATE'] = ""
+        # if 'maildate' in self.combine_report.columns:
+        #     self.sample['DATE'] = self.combine_report['maildate']
+        # else:
+        #     self.sample['DATE'] = ""
+        new_date = datetime.strptime(self.excel_date, "%Y-%m-%d").strftime("%d-%m-%Y")
+        self.sample['DATE'] = new_date
         self.sample['PROFIT%'] = self.combine_report['PROFIT_per']
+        for i in self.sample.columns:
+            if i not in self.numeric_column:
+                self.sample[i]=self.sample[i].astype(str)
+            else:
+                self.sample[i]=self.sample[i].astype(float)
+
+
         filepathname = os.path.join(self.filepath, f"{self.excel_date}_PurchaseReport.xlsx")
 
         if os.path.exists(filepathname):
             self.wb = load_workbook(filepathname)
-           
         else:
             self.wb = load_workbook(self.template_path, data_only=True)
-
+            
         ws = self.wb.active
-        headers = [cell.value for cell in ws[4]] 
-        # print("Columns ", headers)
+        headers = [cell.value for cell in ws[4]]
+        # print("Columns ", headers)    
         start_row = ws.max_row + 1
         for r_idx, row in enumerate(self.sample.to_dict('records'), start=start_row):
             for c_idx, header in enumerate(headers, start=1):
@@ -96,11 +104,11 @@ class ReportCalculation:
                 elif header in row:
                     ws.cell(row=r_idx, column=c_idx, value=row[header])
 
+        print('Purchase Report saving............!')
         self.wb.save(filepathname)
         self.wb.close()
         return self.sample
 
-    
     def getProcessedReport(self):
         return self.sample
 
@@ -118,7 +126,6 @@ class ReportCalculation:
                 if int(i['min']) < value <= int(i['max']):
                     return i['profit']+' %'
             return None
-        
         self.combine_report["PROFIT%"] = self.combine_report[self.profit_mapp].apply(findpro)
         self.combine_report["PROFIT_per"] = self.combine_report[self.profit_mapp].apply(findper)
 
@@ -128,7 +135,6 @@ class ReportCalculation:
             gst=float(self.gst)/100
             return round((value * gst),2)
         self.combine_report["GST"] = self.combine_report[self.gst_mapp].apply(findgst)
-        print(self.combine_report["GST"])
 
     def MappToPurchaseReport(self):
         #create purachase report dataframe
@@ -155,7 +161,7 @@ class ReportCalculation:
                         self.report[key] = self.df[value]
                         #insert data from purchase report df to combined df
                         self.combine_report[key]=self.df[value]
-            
+
             if key in self.equation:
                 #for i in sorted(self.combine_report.columns, key=len,reverse=True):
                 sorted_cols = sorted(list(self.combine_report.columns), key=len, reverse=True)
@@ -166,7 +172,7 @@ class ReportCalculation:
                 tokens = ' '.join([f"pd.to_numeric(self.combine_report['{i}'], errors='coerce')" if i in list(self.combine_report.columns) else i for i in tokens])
                 self.equation_token_mapp[key]=tokens
                 self.combine_report[key] =  eval(self.equation_token_mapp[key]).round(2)
-                
+
             if key == self.profit_mapp:
                     self.findProfit()
 
