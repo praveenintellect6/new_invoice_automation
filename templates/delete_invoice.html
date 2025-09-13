@@ -1,0 +1,14 @@
+<div>
+    <div class="row mt-2 bg-blue-200 shadow-md">
+        <div class="flex-1 p-4 m-2 ">
+            <label for="supplier_name" class="block mb-3 text-gray-700 font-semibold">
+                Delete Invoice
+            </label>
+            <input type="date" v-model="delete_date" class="form-control w-25">
+            <div class="flex-1  m-2 items-center">
+                <button type="submit" @click="deleteInvoice" class="submit-button w-15">Submit</button>
+            </div>
+        </div>
+    </div>
+</div>
+

@@ -28,44 +28,36 @@ import time
 @csrf_exempt
 def monthReportGenerate(request):
     if request.method == "POST":
-        date_str= request.POST.get("report_month")
-        year, month = date_str.split("-")
-        month_name = datetime.strptime(month, "%m").strftime("%b")
-        folder_path= os.path.join('media',year,month_name)
-        files = os.listdir(folder_path)
-        file_list= []
-        for i in files:
-            file_path = os.path.join(folder_path, i)
-            files = [f for f in os.listdir(file_path) if os.path.isfile(os.path.join(file_path, f))]
-            for j in files:
-                if "PurchaseReport" in j:
-                    file_list.append(os.path.join(file_path,j))
-                    
-        pp=PurchaseReportClass()
-        pp.monthlyPurchaseReport(file_list=file_list)
+        try:
+            date_str= request.POST.get("report_month")
+            year, month = date_str.split("-")
+            month_name = datetime.strptime(month, "%m").strftime("%b")
+            folder_path= os.path.join('media',year,month_name)
+            filename = os.path.abspath(os.path.join(folder_path, f"PurchaseReport{month}_{year}.xlsx"))
+            
+            if os.path.isdir(folder_path):
+                excel_files = [
+                    f for f in os.listdir(folder_path)
+                    if f.lower().endswith(('.xlsx', '.xls')) and os.path.isfile(os.path.join(folder_path, f))
+                ]
+            for i in excel_files:
+                os.remove(os.path.join(folder_path, i))
 
-            # if os.path.isfile(file_path):
-            #     all_files.append(file_path)
-        # file_list=[]
-        # files = [f.name for f in folder_path.iterdir() if f.is_file() and "PurchaseReport" in f.name]
-        # print(files)
-        # for i in files:
-        #     path=os.path.join(folder_path,i)
-            # files = [f.name for f in folder_path.iterdir() if f.is_file() and "PurchaseReport" in f.name]
-            # files = [f for f in os.listdir(folder_path) if os.path.isfile(os.path.join(folder_path, f))]
-            # print(files)
+            files = os.listdir(folder_path)
+            file_list= []
+            for i in files:
+                file_path = os.path.join(folder_path, i)
+                files = [f for f in os.listdir(file_path) if os.path.isfile(os.path.join(file_path, f))]
+                for j in files:
+                    if "PurchaseReport" in j:
+                        file_list.append(os.path.join(file_path,j))   
+            pp=PurchaseReportClass()
+            pp.monthlyPurchaseReport(file_list=file_list,year=year,month=month_name)
+            PurchaseReportClass.copy_folder_contents(source_folder=folder_path)
 
-                # print(os.listdir(k))
-            # for i in path:
-            #     files = [f.name for f in folder_path.iterdir() if f.is_file() and "PurchaseReport" in f.name]
-            #     print(files)
-                # if "PurchaseReport" in i:
-                #     file_list.append(i)
-
-
-        return JsonResponse({"status": "success"})
-    return JsonResponse({"status": "error", "message": "POST request required"}, status=405)
-
+            return JsonResponse({"status": "success"})
+        except Exception as e:
+            return JsonResponse({"status": "error", "message": str(e)}, status=500)
 
 @csrf_exempt
 def submit_pdf_files(request):
@@ -144,6 +136,7 @@ def submit_excel_files(request):
     if request.method == "POST":
         files = request.FILES.getlist("files")
         excel_date = request.POST.get("date")
+
         for f in files:
             df=pd.read_excel(f, dtype=str)
             supplier_name = df['supplier'].iloc[0]
