@@ -96,9 +96,9 @@
     <div class="dashboard">
       <!-- Sidebar Navigation -->
       <div class="sidebar">
-        <button :class="{active: activeTab==='image'}" @click="activeTab='image'" @mouseover="activeTab='image'">
+        <!-- <button :class="{active: activeTab==='image'}" @click="activeTab='image'" @mouseover="activeTab='image'">
           <i class="fas fa-file-excel"></i> Upload Image Invoice
-        </button>
+        </button> -->
 
         <button :class="{active: activeTab==='pdf'}" @click="activeTab='pdf'" @mouseover="activeTab='pdf'">
           <i class="fas fa-file-pdf"></i> Upload PDF Invoice
@@ -191,7 +191,7 @@
         <div v-if="activeTab==='column_mapping'">
         </div>
 
-         <!-- Delete Invoice -->
+        <!-- Delete Invoice -->
         <div v-if="activeTab==='delete_invoice'">
           {% include "delete_invoice.html" %}
         </div>
@@ -256,13 +256,51 @@
           report_month: '',
           //delete_invoice.html variable ====================================
           delete_date: '',
+          current_delete_date:'',
+          delete_list: [],
+          current_delete_list:[],
         };
 
       },
       methods: {
         //delete_invoice.html methods ====================================
-        async deleteInvoice()
-        {
+        async deleteInvoiceFile(){
+          if (this.current_delete_list.length === 0) {
+            Swal.fire({
+              icon: 'warning',
+              title: 'Warning',
+              text: 'Please Delete a File',
+              confirmButtonColor: '#f59e0b'
+            });
+            return
+          }
+          try 
+          {
+             const baseUrl = window.location.origin;
+             const formData = new FormData();
+             this.current_delete_list.forEach((file) => {
+                formData.append("delete_files", file);
+              });
+              formData.append("delete_date", this.current_delete_date);
+              const response = await axios.post(`${baseUrl}/delete_invoice_file/`, formData, {
+                headers: {
+                  "Content-Type": "multipart/form-data"
+                } 
+              });
+              if (response.data.status === "success"){
+                alert("delete files");
+                this.deleteInvoice();
+              }
+            
+          }catch(error){
+              alert("error occured!");
+          }
+        },
+        async removeFileList(row,index){
+          this.delete_list.splice(index, 1);
+          this.current_delete_list.push(row);  
+        },
+        async deleteInvoice() {
           if (this.delete_date === "") {
             Swal.fire({
               icon: 'warning',
@@ -271,24 +309,26 @@
               confirmButtonColor: '#f59e0b'
             });
             return
-          } 
-          try{
-              const baseUrl = window.location.origin;
-              const response = await axios.post
+          }
+          try {
+            this.current_delete_date='';
+            this.current_delete_list=[];
+            const baseUrl = window.location.origin;
+            const response = await axios.post
               (
-                `${baseUrl}/deleteInvoice/`,new URLSearchParams({delete_date: this.delete_date }),
+                `${baseUrl}/deleteInvoice/`, new URLSearchParams({ delete_date: this.delete_date }),
                 {
                   headers: {
                     "Content-Type": "application/x-www-form-urlencoded"
                   }
                 }
               );
-          }catch(error){
+              this.delete_list=response.data.files;
+              this.current_delete_date=this.delete_date;
+          } catch (error) {
             alert("error occured!");
           }
-          if (response.data.status === 'success') {
-            alert("file deleted");
-           }
+
         },
         //month.html methods =============================================
         async monthReportGenerate() {
@@ -377,7 +417,7 @@
                 Swal.fire({
                   icon: "error",
                   title: "Failed",
-                  text: response.data.message || "Upload failed",
+                  text: response.data.message || "Extarction failed",
                   confirmButtonColor: "#ef4444"
                 });
               }
@@ -550,7 +590,11 @@
               this.gst_map_input = response.data.gst_mapp;
               this.profit_map_input = response.data.profit_mapp;
             }
-
+            if (this.supplier_for_col_add !== this.supplier_edit_case) {
+                console.log("Values are different");
+                this.supplier_for_col_add=this.supplier_edit_case;
+                this.supplier_for_col_add_onchange();
+              } 
           }
           catch (error) {
             alert("error");
@@ -701,6 +745,11 @@
               // this.add_case_list = response.data.case_state;
               //this.gst = response.data.gst;
             }
+            if (this.supplier_for_col_add !== this.supplier_edit_case) {
+                  console.log("Values are different");
+                  this.supplier_edit_case=this.supplier_for_col_add;
+                  this.supplier_edit_case_change();
+                } 
 
           }
           catch (error) {

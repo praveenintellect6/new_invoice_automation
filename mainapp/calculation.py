@@ -15,7 +15,7 @@ from datetime import datetime
 class ReportCalculation:
     #*kwargs(df=df)
     numeric_column=['TRADE PRICE','TOTAL COUNT','PURCHASED COUNT','TOTAL PRICE','ACTUAL PRICE','SELLING PRICE(Exc.GST)','GST','SELLING PRICE(Inc.GST)']
-    def __init__(self, file=None, df=None,excel_date=None,supp=None):
+    def __init__(self, file=None,filename=None,df=None,excel_date=None,supp=None):
         self.supp=supp
         self.operator=["+", "-", "*", "/"]
         #'0','1','2','3','4','5','6','7','8','9'
@@ -42,6 +42,10 @@ class ReportCalculation:
             self.df=df
         if file is not None:
             self.filepath=file
+
+        if filename is not None:
+            self.filename=filename
+
         if excel_date is not None:
             self.excel_date=excel_date
 
@@ -72,10 +76,7 @@ class ReportCalculation:
             self.sample['Supplier'] = self.combine_report['supplier']
         else:
             self.sample['Supplier'] = ""
-        # if 'maildate' in self.combine_report.columns:
-        #     self.sample['DATE'] = self.combine_report['maildate']
-        # else:
-        #     self.sample['DATE'] = ""
+        # self.sample['Filename'] = self.filename
         new_date = datetime.strptime(self.excel_date, "%Y-%m-%d").strftime("%d-%m-%Y")
         self.sample['DATE'] = new_date
         self.sample['PROFIT%'] = self.combine_report['PROFIT_per']
@@ -84,7 +85,6 @@ class ReportCalculation:
                 self.sample[i]=self.sample[i].astype(str)
             else:
                 self.sample[i]=self.sample[i].astype(float)
-
 
         filepathname = os.path.join(self.filepath, f"{self.excel_date}_PurchaseReport.xlsx")
 

@@ -17,9 +17,14 @@ class PurchaseReportClass:
         os.makedirs(folder_path, exist_ok=True)
         return folder_path
     
-    def copy_folder_contents(source_folder, destination_folder=None, retries=5, delay=0.5):
+    def createFolderFromMedia(self, date_str):
+        dt = datetime.strptime(date_str, "%Y-%m-%d")
+        folder_path = os.path.join('media',str(dt.year),dt.strftime("%b"),date_str)
+        return folder_path
+    
+    def copy_folder_contents(source_folder,retries=5, delay=0.5):
         if not os.path.exists(source_folder):
-            print(f" Source folder does not exist: {source_folder}")
+            print(f"Source folder does not exist: {source_folder}")
             return
         relative_path = os.path.relpath(source_folder)
         load_dotenv()
@@ -69,7 +74,8 @@ class PurchaseReportClass:
                 elif header in row:
                     ws.cell(row=r_idx, column=c_idx, value=row[header])
         folder_path= os.path.join('media',year,month)
-        self.wb.save(f"{folder_path}\PurchaseReport{month}_{year}.xlsx")
+        file_path = os.path.join(folder_path, f"PurchaseReport{month}_{year}.xlsx")
+        self.wb.save(file_path)
         self.wb.close()
     
  

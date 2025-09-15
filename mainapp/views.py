@@ -16,26 +16,62 @@ from openpyxl import load_workbook
 import time 
 
 
-# print(os.getenv("DB_PORT"))
-# supp=NewSupplier.objects.get(id=23)
-# print(supp.supplier_mapp_col)
 
-# rr=NewSupplier.objects.get(supplier_name='wurth')
-# print(rr.supplier_mapp_col)
+@csrf_exempt
+def delete_invoice_file(request):
+   if request.method == "POST":
+        delete_date = request.POST.get("delete_date")
+        delete_files = request.POST.getlist("delete_files")
+        folder_path = PurchaseReportClass().createFolderFromMedia(delete_date)
+        remote_folder_path = os.path.join(os.getenv("remote_location"),folder_path)
+        if delete_files:
+            for f in delete_files:
+                print("files name:",f)
+                path = os.path.join(folder_path, f)
+                remote_path=os.path.join(remote_folder_path, f)
 
-# ee=Extarction()
-# df1=ee.scrapping(filepath=r"196_Invoice_4321420874.PDF",maildate="25-07-03")
+                if os.path.exists(path):
+                            os.remove(path)
+                if os.path.exists(remote_path):
+                            os.remove(remote_path)
 
-# ss=MailAutomation()
-# ss.mailExtraction()
+            if os.path.exists(os.path.join(folder_path,f"{delete_date}_PurchaseReport.xlsx")):
+                        print("yes folder_path exist")
+                        os.remove(os.path.join(folder_path,f"{delete_date}_PurchaseReport.xlsx"))
+
+            if os.path.exists(os.path.join(remote_folder_path,f"{delete_date}_PurchaseReport.xlsx")):
+                        print("yes remote_folder_path exist")
+                        os.remove(os.path.join(remote_folder_path, f"{delete_date}_PurchaseReport.xlsx"))
+            files = os.listdir(folder_path)
+
+            xlsx_files = [f for f in files if f.endswith(".xlsx") and os.path.isfile(os.path.join(folder_path, f))]
+            print("xlsx_files:", xlsx_files)
+            for i in xlsx_files:
+                df=pd.read_excel(os.path.join(folder_path,i), dtype=str)
+                supplier_name = df['supplier'].iloc[0]
+                supp = NewSupplier.objects.filter(supplier_name=supplier_name).first()
+                if not supp:
+                    print(f" Supplier not found for {i}, skipping...")
+                    continue
+                rr = ReportCalculation(df=df, file=folder_path,filename=i,excel_date=delete_date, supp=supp)
+                rr.MappToPurchaseReport()
+                p_df=rr.exportToExcel()
+                del df
+            PurchaseReportClass.copy_folder_contents(source_folder=folder_path)
+            return JsonResponse({"status": "success"})
+            
+        return JsonResponse({"status": "success"})
 
 @csrf_exempt
 def deleteInvoice(request):
     if request.method == "POST":
         try:
             delete_date= request.POST.get("delete_date")
-            print(delete_date)
-            return JsonResponse({"status": "success"})  
+            folder_path = PurchaseReportClass().createFolderByDate(delete_date)
+            files = os.listdir(folder_path)
+            only_files = [f for f in files if os.path.isfile(os.path.join(folder_path, f))]
+            print("Files only:", only_files)
+            return JsonResponse({"status": "success","files": only_files})
         except Exception as e:
             return JsonResponse({"status": "error", "message": str(e)}, status=500)
     return JsonResponse({"status": "failed", "message": "Invalid request"}, status=400)
@@ -90,16 +126,20 @@ def submit_pdf_files(request):
                     extra= Extraction()
                     df= extra.scrapping(filepath=path,maildate=pdf_date)
                     supplier_name = df['supplier'].iloc[0]
+                    print(df)
                     supp = NewSupplier.objects.get(supplier_name__iexact=supplier_name)
                     if not supp:
                         print(f" Supplier not found for {f.name}, skipping...")
                         continue
-                    rr = ReportCalculation(df=df, file=folder_path, excel_date=pdf_date, supp=supp)
+                    rr = ReportCalculation(df=df, file=folder_path,filename=f.name,excel_date=pdf_date, supp=supp)
                     rr.MappToPurchaseReport()
                     p_df= rr.exportToExcel()
-                    PurchaseReportClass.copy_folder_contents(source_folder=folder_path)
                 except Exception as e:
-                    print(f" Failed to process : {e}")         
+                    PurchaseReportClass.copy_folder_contents(source_folder=folder_path)
+                    print(f" Failed to process : {e}")
+                    return JsonResponse({"status": "error"})      
+            PurchaseReportClass.copy_folder_contents(source_folder=folder_path)
+           
         return JsonResponse({"status": "success"})
 
 @csrf_exempt
@@ -136,7 +176,7 @@ def submit_edit_excel_files(request):
                 if not supp:
                     print(f" Supplier not found for {file}, skipping...")
                     continue
-                rr = ReportCalculation(df=df, file=folder_path, excel_date=excel_date, supp=supp)
+                rr = ReportCalculation(df=df, file=folder_path,filename=file,excel_date=excel_date, supp=supp)
                 rr.MappToPurchaseReport()
                 p_df=rr.exportToExcel()
                 print(f" Processed {file}")
@@ -167,7 +207,7 @@ def submit_excel_files(request):
                 if os.path.exists(os.path.join(folder_path, f.name)):
                     print("file exist")
                 else:
-                    rr = ReportCalculation(df=df,file=folder_path,excel_date=excel_date,supp=supp) 
+                    rr = ReportCalculation(df=df,file=folder_path,filename=f.name,excel_date=excel_date,supp=supp) 
                     rr.MappToPurchaseReport()
                     p_df=rr.exportToExcel()
                     save_path=os.path.join(folder_path, f.name)

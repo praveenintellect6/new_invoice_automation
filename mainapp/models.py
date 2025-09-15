@@ -2,6 +2,7 @@ from django.db import models
 
 def default_mapping():
     return {
+        "Filename": "",
         "Supplier": "",
         "DATE": "",
         "PART DESCRIPTION": "",

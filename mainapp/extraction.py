@@ -137,7 +137,7 @@ class Wurth:
         def pad(lst):
             return lst + [""] * (max_len - len(lst))
         df1=pd.DataFrame({
-            # "filePath":[filename for i  in range(len(pad(itemno)))],
+            "filename":[filename for i  in range(len(pad(itemno)))],
             "supplier":[supplier_name for i in range(len(pad(itemno)))],
             "maildate":[maildata for i in range(len(pad(itemno)))],
             "Item Number":pad(itemno),
@@ -220,7 +220,7 @@ class JohnMcGrath:
         def pad(lst):
             return lst + [""] * (max_len - len(lst))
         df1=pd.DataFrame({
-            # "filePath":[f'{filename}' for i  in range(len(pad(location)))],
+            "filename":[f'{filename}' for i  in range(len(pad(location)))],
             "supplier":[f'{supplier_name}' for i in range(len(pad(location)))],
             "maildate":[maildata for i in range(len(pad(location)))],
             "location": pad(location),
@@ -295,7 +295,7 @@ class Yhi:
         def pad(lst):
             return lst + [""] * (max_len - len(lst))
         df1=pd.DataFrame({
-                        # "filePath":[f'{filename}' for i  in range(len(pad(CODE)))],
+                        "filename":[f'{filename}' for i  in range(len(pad(CODE)))],
                         "supplier":[f'{supplier_name}' for i in range(len(pad(CODE)))],
                         "maildate":[f'{maildata}' for i in range(len(pad(CODE)))],          
                         "CODE":pad(CODE),
@@ -371,7 +371,7 @@ class Repco:
         def pad(lst):
             return lst + [""] * (max_len - len(lst))
         df1=pd.DataFrame({
-                            # "filePath":[f'{filename}' for i  in range(len(pad(part_number)))],
+                            "filename":[f'{filename}' for i  in range(len(pad(part_number)))],
                             "supplier":[f'{supplier_name}' for i in range(len(pad(part_number)))],
                             "maildate":[f'{maildata}' for i in range(len(pad(part_number)))],
                             "Part Number":pad(part_number),

@@ -80,7 +80,7 @@ class MailAutomation:
                                         if not supp:
                                             print(f" Supplier not found for {f.name}, skipping...")
                                             continue
-                                        rr = ReportCalculation(df=df, file=folder_path, excel_date=invoice_date, supp=supp)
+                                        rr = ReportCalculation(df=df, file=folder_path,filename=filename,excel_date=invoice_date, supp=supp)
                                         rr.MappToPurchaseReport()
                                         p_df= rr.exportToExcel()
                                         PurchaseReportClass.copy_folder_contents(source_folder=folder_path)

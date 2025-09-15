@@ -34,4 +34,5 @@ urlpatterns = [
     path('submit_pdf_files/', views.submit_pdf_files, name='submit_pdf_files'),
     path('monthReportGenerate/', views.monthReportGenerate, name='monthReportGenerate'),
     path('deleteInvoice/',views.deleteInvoice,name="deleteInvoice"),
+    path('delete_invoice_file/',views.delete_invoice_file,name="delete_invoice_file"),
 ]
