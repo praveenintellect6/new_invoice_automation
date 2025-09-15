@@ -15,6 +15,7 @@ load_dotenv()
 from openpyxl import load_workbook
 import time 
 
+
 # print(os.getenv("DB_PORT"))
 # supp=NewSupplier.objects.get(id=23)
 # print(supp.supplier_mapp_col)
@@ -24,6 +25,20 @@ import time
 
 # ee=Extarction()
 # df1=ee.scrapping(filepath=r"196_Invoice_4321420874.PDF",maildate="25-07-03")
+
+# ss=MailAutomation()
+# ss.mailExtraction()
+
+@csrf_exempt
+def deleteInvoice(request):
+    if request.method == "POST":
+        try:
+            delete_date= request.POST.get("delete_date")
+            print(delete_date)
+            return JsonResponse({"status": "success"})  
+        except Exception as e:
+            return JsonResponse({"status": "error", "message": str(e)}, status=500)
+    return JsonResponse({"status": "failed", "message": "Invalid request"}, status=400)
 
 @csrf_exempt
 def monthReportGenerate(request):
@@ -110,6 +125,7 @@ def submit_edit_excel_files(request):
                 print(f"Removed old report: {report_file}")
         except Exception as e:
             print(f"Could not remove old report: {e}")
+            
         xlsx_files = [ f for f in os.listdir(folder_path) if f.endswith(".xlsx") and not f.endswith("PurchaseReport.xlsx")]
         for file in xlsx_files:
             file_path = os.path.join(folder_path, file)
@@ -163,7 +179,6 @@ def submit_excel_files(request):
 
         return JsonResponse({"status": "success"})
     return JsonResponse({"status": "failed", "message": "Invalid request"}, status=400)
-
 
 @csrf_exempt
 def home_view(request):

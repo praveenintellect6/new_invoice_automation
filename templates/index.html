@@ -191,7 +191,7 @@
         <div v-if="activeTab==='column_mapping'">
         </div>
 
-        <!-- Delete Invoice -->
+         <!-- Delete Invoice -->
         <div v-if="activeTab==='delete_invoice'">
           {% include "delete_invoice.html" %}
         </div>
@@ -254,37 +254,54 @@
           pdfFiles: [],
           //month.html variable =============================================
           report_month: '',
-          //delete_invoice.html variable=====================================
+          //delete_invoice.html variable ====================================
           delete_date: '',
         };
 
       },
       methods: {
-        //delete_invoice.html variable=====================================
-        async deleteInvoice() {
-          alert(this.delete_date);
-        },
-        //month.html methods ==============================================
-        async monthReportGenerate() {
-          if (this.report_month === "") {
-              Swal.fire({
+        //delete_invoice.html methods ====================================
+        async deleteInvoice()
+        {
+          if (this.delete_date === "") {
+            Swal.fire({
               icon: 'warning',
               title: 'Warning',
               text: 'Please Input Date!',
               confirmButtonColor: '#f59e0b'
             });
-            return;
-            } 
+            return
+          } 
+          try{
+              const baseUrl = window.location.origin;
+              const response = await axios.post
+              (
+                `${baseUrl}/deleteInvoice/`,new URLSearchParams({delete_date: this.delete_date }),
+                {
+                  headers: {
+                    "Content-Type": "application/x-www-form-urlencoded"
+                  }
+                }
+              );
+          }catch(error){
+            alert("error occured!");
+          }
+          if (response.data.status === 'success') {
+            alert("file deleted");
+           }
+        },
+        //month.html methods =============================================
+        async monthReportGenerate() {
+          if (this.report_month === "") {
             Swal.fire({
-              title: "Extraction Processing...",
-              text: "Please wait while we process your files",
-              allowOutsideClick: false,
-              allowEscapeKey: false,
-              didOpen: () => {
-                Swal.showLoading();
-              },
+              icon: 'warning',
+              title: 'Warning',
+              text: 'Please Input Date!',
+              confirmButtonColor: '#f59e0b'
             });
+          } else {
             try {
+              alert(this.report_month);
               const baseUrl = window.location.origin;
               const response = await axios.post(
                 `${baseUrl}/monthReportGenerate/`,
@@ -295,26 +312,24 @@
                   }
                 }
               );
-              if (response.data.status === 'success') {
-                Swal.fire({
-                  icon: "success",
-                  title: "Upload Complete",
-                  text: "Purchase Report Created Successfull!",
-                  confirmButtonColor: "#3b82f6"
-                });
-              } else {
-                Swal.fire({
-                  icon: "error",
-                  title: "Failed",
-                  text: response.data.message || "failed to Create Purchase Report!",
-                  confirmButtonColor: "#ef4444"
-                });
-              }
-
             } catch (error) {
-              console.error(" Error:", error.message);
-            }
 
+            }
+            if (response.data.status === 'success') {
+              Swal.fire({
+                icon: "success",
+                title: "Upload Complete",
+                text: "Purchase Report Created Successfull!",
+                confirmButtonColor: "#3b82f6"
+              });
+            } else {
+              Swal.fire({
+                icon: "error",
+                title: "Failed",
+                text: response.data.message || "failed to Create Purchase Report!",
+                confirmButtonColor: "#ef4444"
+              });
+            }
           }
         },
         // upload_pdf.html methods==========================================
@@ -534,10 +549,6 @@
               this.gst_input = response.data.gst;
               this.gst_map_input = response.data.gst_mapp;
               this.profit_map_input = response.data.profit_mapp;
-              if (this.supplier_for_col_add !== this.supplier_edit_case) {
-                this.supplier_for_col_add = this.supplier_edit_case;
-                this.supplier_for_col_add_onchange();
-              }
             }
 
           }
@@ -689,10 +700,6 @@
               this.edit_column_list = response.data.column_state;
               // this.add_case_list = response.data.case_state;
               //this.gst = response.data.gst;
-              if (this.supplier_for_col_add !== this.supplier_edit_case) {
-                this.supplier_edit_case = this.supplier_for_col_add
-                this.supplier_edit_case_change();
-              }
             }
 
           }

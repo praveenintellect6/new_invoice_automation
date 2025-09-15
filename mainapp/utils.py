@@ -1,4 +1,98 @@
 from .models import *
+from datetime import datetime
+import random
+import imaplib
+import email
+from email.header import decode_header
+from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
+from email.utils import parsedate_to_datetime
+from dotenv import load_dotenv
+import os
+from .purchase_report import PurchaseReportClass
+from .extraction import Extraction
+from .calculation import ReportCalculation
+
+
+class MailAutomation:
+    def __init__(self):
+        load_dotenv()
+        self.username = os.getenv("praveen_mail")
+        self.password = os.getenv("praveen_password")
+        pass
+
+    def printTime(self):
+        print("Time:",datetime.now())
+    
+    def generate_random_3_digit(self):
+        return random.randint(100, 999)
+
+    def mailExtraction(self):
+        try:
+            self.mail = imaplib.IMAP4_SSL("imap.gmail.com")
+            load_dotenv()
+            self.mail.login(self.username, self.password)
+            print("✅ IMAP connection successful")
+            self.mail.select("inbox")
+            self.mail.select('"[Gmail]/All Mail"')
+            status, messages = self.mail.search(None, 'X-GM-RAW', 'is:unread')
+            print("status",status)
+            if status != "OK":
+                print("No emails found.")
+                self.mail.logout()
+            else:
+                for num in messages[0].split():
+                    res, data = self.mail.fetch(num, "(RFC822)")
+                    msg = email.message_from_bytes(data[0][1])
+                    subject = decode_header(msg["Subject"])[0][0]
+                    _, msg_data = self.mail.fetch(num, '(RFC822)')
+                    if not msg_data or not msg_data[0]:
+                        continue
+                    raw_email = msg_data[0][1]
+                    msg = email.message_from_bytes(raw_email)
+                    body = ""
+                    if msg.is_multipart():
+                        if "invoice" in msg.get("Subject", "").lower():
+                            for part in msg.walk():
+                                content_type = part.get_content_type()
+                                content_disposition = str(part.get("Content-Disposition", "")).lower()
+                                if content_disposition and "attachment" in content_disposition:
+                                    raw_date = msg.get("Date")
+                                    filename = str(self.generate_random_3_digit())+"_"+part.get_filename()
+                                    invoice_date = parsedate_to_datetime(raw_date).date()
+                                    invoice_date=str(invoice_date)
+                                    folder_path = PurchaseReportClass().createFolderByDate(invoice_date)
+                                    if not filename:
+                                            ext = mimetypes.guess_extension(content_type) or ".bin"
+                                            filename = f"attachment_{uuid.uuid4().hex}{ext}"    
+                                    filepath = os.path.join(folder_path, filename)
+                                    try:
+                                        with open(filepath, "wb") as f:
+                                            f.write(part.get_payload(decode=True))
+                                    except Exception as save_error:
+                                        print(f"Failed to save attachment {filename}: {save_error}")
+                                    try:
+                                        extra= Extraction()
+                                        df= extra.scrapping(filepath=filepath,maildate=invoice_date)
+                                        supplier_name = df['supplier'].iloc[0]
+                                        print("supplier name:",supplier_name)
+                                        supp = NewSupplier.objects.get(supplier_name__iexact=supplier_name)
+                                        if not supp:
+                                            print(f" Supplier not found for {f.name}, skipping...")
+                                            continue
+                                        rr = ReportCalculation(df=df, file=folder_path, excel_date=invoice_date, supp=supp)
+                                        rr.MappToPurchaseReport()
+                                        p_df= rr.exportToExcel()
+                                        PurchaseReportClass.copy_folder_contents(source_folder=folder_path)
+                                    except Exception as e:
+                                        print(f" Failed to process : {e}")
+                                    
+            self.mail.logout()                        
+        except Exception as e:
+            print("imap connection failed")
+            self.mail.logout()
+            print(e)
+
 
 class CaseEditing:
 
