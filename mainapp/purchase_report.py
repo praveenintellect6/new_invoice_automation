@@ -6,6 +6,8 @@ import time
 from dotenv import load_dotenv
 from openpyxl import load_workbook
 import pandas as pd
+from .models import *
+
 
 class PurchaseReportClass:
     def __init__(self):
@@ -77,6 +79,25 @@ class PurchaseReportClass:
         file_path = os.path.join(folder_path, f"PurchaseReport{month}_{year}.xlsx")
         self.wb.save(file_path)
         self.wb.close()
+
+    def autoSelectingSupplier(self,df=None):
+        self.nn=NewSupplier.objects.all()
+        self.supplier_name=None
+        for i in self.nn:
+            self.supplier_col= i.supplier_col
+            self.df_col = df.columns.tolist()
+            equal = set(x.lower() for x in self.df_col) == set(x.lower() for x in self.supplier_col)
+            if equal:
+                self.supplier_name=i.supplier_name
+                break
+            else:
+                continue
+        
+        return self.supplier_name
+          
+
+            
+
     
  
 

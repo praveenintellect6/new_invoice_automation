@@ -89,8 +89,20 @@
 
 <body>
   <div id="app">
+
     <header class="text-left font-bold text-xl">
-      Invoice Extraction
+ 
+      <svg xmlns="http://www.w3.org/2000/svg" width="300" height="66" viewBox="0 0 300 66" aria-hidden="true" role="img">
+        <!-- icon -->
+        <rect x="6" y="6" width="44" height="44" rx="8" fill="#0b1220"/>
+        <path d="M18 18h22M18 26h16M18 34h10" stroke="#06b6d4" stroke-width="2" stroke-linecap="round"/>
+        <path d="M38 32l6 6 10-12" stroke="#7c3aed" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+        <!-- text -->
+        <g transform="translate(64,36)" fill="#e6eef6" font-family="Inter, Roboto, system-ui, -apple-system" font-weight="700">
+          <text x="0" y="-8" font-size="24">Invoice Automation</text>
+          <text x="0" y="12" font-size="12" fill="#9fb8c6" font-weight="600">Generating Purchase Report </text>
+        </g>
+      </svg>
     </header>
 
     <div class="dashboard">
@@ -100,22 +112,21 @@
           <i class="fas fa-file-excel"></i> Upload Image Invoice
         </button> -->
 
-        <button :class="{active: activeTab==='pdf'}" @click="activeTab='pdf'" @mouseover="activeTab='pdf'">
+        <button :class="{active: activeTab==='pdf'}" @click="activeTab='pdf'" >
           <i class="fas fa-file-pdf"></i> Upload PDF Invoice
         </button>
 
-        <button :class="{active: activeTab==='excel'}" @click="activeTab='excel'" @mouseover="activeTab='excel'">
+        <button :class="{active: activeTab==='excel'}" @click="activeTab='excel'">
           <i class="fas fa-file-excel"></i> Upload Excel
         </button>
         <!-- <button :class="{active: activeTab==='invoices'}" @click="activeTab='invoices'">
           <i class="fas fa-table"></i> Show Invoices
         </button> -->
-        <button :class="{active: activeTab==='month'}" @click="activeTab='month'" @mouseover="activeTab='month'">
+        <button :class="{active: activeTab==='month'}" @click="activeTab='month'" >
           <i class="fas fa-calendar-alt"></i> Month Report
         </button>
 
-        <button :class="{active: activeTab==='delete_invoice'}" @click="activeTab='delete_invoice'"
-          @mouseover="activeTab='delete_invoice'">
+        <button :class="{active: activeTab==='delete_invoice'}" @click="activeTab='delete_invoice'">
           <i class="fas fa-trash"></i> Delete Invoice
         </button>
 
@@ -123,18 +134,6 @@
           @mouseover="activeTab='settings'">
           <i class="fas fa-cog"></i> Settings
         </button>
-
-        <!-- <button :class="{active: activeTab==='add_new_supplier'}" @click="activeTab='add_new_supplier'" @mouseover="activeTab='add_new_supplier'">
-            <i class="fas fa-building"></i> Add New Supplier
-        </button> -->
-
-        <!-- <button :class="{active: activeTab==='edit_case'}" @click="activeTab='edit_case'" @mouseover="activeTab='edit_case'">
-            <i class="fas fa-tools"></i> Edit Case
-        </button> -->
-
-        <!-- <button :class="{active: activeTab==='column_mapping'}" @click="activeTab='column_mapping'" @mouseover="activeTab='column_mapping'">
-            <i class="fas fa-exchange-alt"></i> Column Mapping
-        </button> -->
       </div>
 
       <!-- Main Content -->
@@ -211,7 +210,7 @@
       delimiters: ['[[', ']]'],
       data() {
         return {
-          //  main page variables-------------------------
+          //  main page variables========================================
           activeTab: 'excel',
           invoice_list: [],
           files: [],
@@ -244,17 +243,17 @@
           gst_input: '',
           gst_map_input: '',
           profit_map_input: '',
-          // upload_excel.html variable =====================================
+          // upload_excel.html variable =================================
           excel_date: '',
           edit_excel_date: '',
           excelFiles: [],
           edit_excelFiles: [],
-          //upload_pdf.html variable ========================================
+          //upload_pdf.html variable ====================================
           pdf_date: '',
           pdfFiles: [],
-          //month.html variable =============================================
+          //month.html variable =========================================
           report_month: '',
-          //delete_invoice.html variable ====================================
+          //delete_invoice.html variable ================================
           delete_date: '',
           current_delete_date:'',
           delete_list: [],
@@ -263,19 +262,27 @@
 
       },
       methods: {
-        //delete_invoice.html methods ====================================
+        //delete_invoice.html methods ===================================
         async deleteInvoiceFile(){
           if (this.current_delete_list.length === 0) {
             Swal.fire({
               icon: 'warning',
               title: 'Warning',
-              text: 'Please Delete a File',
+              text: 'Please Remove a File',
               confirmButtonColor: '#f59e0b'
             });
-            return
           }
           try 
           {
+              Swal.fire({
+                title: "Loading...",
+                text: "Generating your report",
+                allowOutsideClick: false,
+                allowEscapeKey: false,
+                didOpen: () => {
+                  Swal.showLoading();
+                }
+              });
              const baseUrl = window.location.origin;
              const formData = new FormData();
              this.current_delete_list.forEach((file) => {
@@ -287,13 +294,23 @@
                   "Content-Type": "multipart/form-data"
                 } 
               });
+              Swal.close();
               if (response.data.status === "success"){
-                alert("delete files");
+                 Swal.fire({
+                  icon: "success",
+                  title: "Done!",
+                  text: "Deleted successfully."
+                });
                 this.deleteInvoice();
               }
             
           }catch(error){
-              alert("error occured!");
+              Swal.close();
+              Swal.fire({
+                icon: "error",
+                title: "Error",
+                text: "Something went wrong!"
+              });
           }
         },
         async removeFileList(row,index){
@@ -330,7 +347,7 @@
           }
 
         },
-        //month.html methods =============================================
+        //month.html methods ============================================
         async monthReportGenerate() {
           if (this.report_month === "") {
             Swal.fire({
@@ -372,7 +389,7 @@
             }
           }
         },
-        // upload_pdf.html methods==========================================
+        // upload_pdf.html methods=======================================
         handlePdfFileUpload(event) {
           this.pdfFiles = Array.from(event.target.files);
           console.log("Selected files:", this.pdfFiles);
@@ -394,6 +411,15 @@
               confirmButtonColor: '#f59e0b'
             });
           } else {
+              Swal.fire({
+                  title: "Loading...",
+                  text: "Generating your report",
+                  allowOutsideClick: false,
+                  allowEscapeKey: false,
+                  didOpen: () => {
+                    Swal.showLoading();
+                  }
+                });
             try {
               const baseUrl = window.location.origin;
               const formData = new FormData();
@@ -406,6 +432,7 @@
                   "Content-Type": "multipart/form-data"
                 }
               });
+              Swal.close();
               if (response.data.status === 'success') {
                 Swal.fire({
                   icon: "success",
@@ -423,6 +450,7 @@
               }
 
             } catch (error) {
+              Swal.close();
               console.error("Upload failed:", error);
               Swal.fire({
                 icon: "error",
@@ -532,6 +560,7 @@
                   "Content-Type": "multipart/form-data"
                 }
               });
+              Swal.close();
               if (response.data.status === 'success') {
                 Swal.fire({
                   icon: "success",
@@ -550,6 +579,7 @@
 
             } catch (error) {
               console.error("Upload failed:", error);
+              Swal.close();
               Swal.fire({
                 icon: "error",
                 title: "Error",

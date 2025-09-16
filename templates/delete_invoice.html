@@ -12,7 +12,6 @@
     </div>
     <div v-if="current_delete_date" class="row mt-2 bg-blue-200 shadow-md">
         <div class="flex-1 p-4 m-2 ">
-
         </div>
         <div class="flex-1 p-4 m-2 ">
             <div class="flex justify-between items-center w-full" v-for="(row, index) in delete_list" :key="index">
@@ -30,7 +29,7 @@
                 <button type="submit" v-if="current_delete_date" @click="deleteInvoiceFile" class=" submit-button w-15">Submit</button>
             </div>
         <div class="flex-1 p-4 m-2 ">
-
         </div>
     </div>
+
 </div>

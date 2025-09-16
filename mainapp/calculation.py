@@ -62,6 +62,7 @@ class ReportCalculation:
                 self.equation.append(key)
             else:
                 self.direct.append(key)
+
     
     def read_excel(self,):
         df = pd.read_excel("196_Invoice_4321420874.xlsx")
@@ -76,7 +77,7 @@ class ReportCalculation:
             self.sample['Supplier'] = self.combine_report['supplier']
         else:
             self.sample['Supplier'] = ""
-        # self.sample['Filename'] = self.filename
+
         new_date = datetime.strptime(self.excel_date, "%Y-%m-%d").strftime("%d-%m-%Y")
         self.sample['DATE'] = new_date
         self.sample['PROFIT%'] = self.combine_report['PROFIT_per']
@@ -126,6 +127,7 @@ class ReportCalculation:
                 if int(i['min']) < value <= int(i['max']):
                     return i['profit']+' %'
             return None
+        
         self.combine_report["PROFIT%"] = self.combine_report[self.profit_mapp].apply(findpro)
         self.combine_report["PROFIT_per"] = self.combine_report[self.profit_mapp].apply(findper)
 

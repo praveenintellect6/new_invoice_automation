@@ -26,7 +26,6 @@ def delete_invoice_file(request):
         remote_folder_path = os.path.join(os.getenv("remote_location"),folder_path)
         if delete_files:
             for f in delete_files:
-                print("files name:",f)
                 path = os.path.join(folder_path, f)
                 remote_path=os.path.join(remote_folder_path, f)
 
@@ -45,7 +44,6 @@ def delete_invoice_file(request):
             files = os.listdir(folder_path)
 
             xlsx_files = [f for f in files if f.endswith(".xlsx") and os.path.isfile(os.path.join(folder_path, f))]
-            print("xlsx_files:", xlsx_files)
             for i in xlsx_files:
                 df=pd.read_excel(os.path.join(folder_path,i), dtype=str)
                 supplier_name = df['supplier'].iloc[0]
@@ -70,7 +68,6 @@ def deleteInvoice(request):
             folder_path = PurchaseReportClass().createFolderByDate(delete_date)
             files = os.listdir(folder_path)
             only_files = [f for f in files if os.path.isfile(os.path.join(folder_path, f))]
-            print("Files only:", only_files)
             return JsonResponse({"status": "success","files": only_files})
         except Exception as e:
             return JsonResponse({"status": "error", "message": str(e)}, status=500)
@@ -126,7 +123,6 @@ def submit_pdf_files(request):
                     extra= Extraction()
                     df= extra.scrapping(filepath=path,maildate=pdf_date)
                     supplier_name = df['supplier'].iloc[0]
-                    print(df)
                     supp = NewSupplier.objects.get(supplier_name__iexact=supplier_name)
                     if not supp:
                         print(f" Supplier not found for {f.name}, skipping...")
@@ -195,8 +191,10 @@ def submit_excel_files(request):
 
         for f in files:
             df=pd.read_excel(f, dtype=str)
-            supplier_name = df['supplier'].iloc[0]
-            print("supplier_name===", supplier_name)
+            ss=PurchaseReportClass()
+            supplier_name=ss.autoSelectingSupplier(df=df)
+            # supplier_name = df['supplier'].iloc[0]
+         
             exist = NewSupplier.objects.filter(supplier_name=supplier_name).exists()
             if not exist :
                 print("supplier not found",supplier_name)
