@@ -11,7 +11,6 @@ import shutil
 from .purchase_report import PurchaseReportClass
 from datetime import datetime
 
-
 class ReportCalculation:
     #*kwargs(df=df)
     numeric_column=['TRADE PRICE','TOTAL COUNT','PURCHASED COUNT','TOTAL PRICE','ACTUAL PRICE','SELLING PRICE(Exc.GST)','GST','SELLING PRICE(Inc.GST)']
@@ -70,13 +69,8 @@ class ReportCalculation:
     
     def exportToExcel(self):
         self.sample=pd.DataFrame()
-        for key,value in default_mapping().items():
+        for key in default_mapping().keys():
             self.sample[key] = self.combine_report[key]
-
-        if 'supplier' in self.combine_report.columns:
-            self.sample['Supplier'] = self.combine_report['supplier']
-        else:
-            self.sample['Supplier'] = ""
 
         new_date = datetime.strptime(self.excel_date, "%Y-%m-%d").strftime("%d-%m-%Y")
         self.sample['DATE'] = new_date
@@ -95,8 +89,7 @@ class ReportCalculation:
             self.wb = load_workbook(self.template_path, data_only=True)
             
         ws = self.wb.active
-        headers = [cell.value for cell in ws[4]]
-        # print("Columns ", headers)    
+        headers = [cell.value for cell in ws[4]] 
         start_row = ws.max_row + 1
         for r_idx, row in enumerate(self.sample.to_dict('records'), start=start_row):
             for c_idx, header in enumerate(headers, start=1):
@@ -139,15 +132,10 @@ class ReportCalculation:
         self.combine_report["GST"] = self.combine_report[self.gst_mapp].apply(findgst)
 
     def MappToPurchaseReport(self):
-        #create purachase report dataframe
         self.report=pd.DataFrame(columns=list(self.mapped_col.keys()))
-        
         mergelst=list(self.mapped_col.keys()) + (list(self.df.columns))
-
-        #create comined columns of supplier report and purchase report 
         self.combine_report=pd.DataFrame(columns=mergelst)
 
-        #insert data from supplier df into combined df
         for i in list(self.df.columns):
             self.combine_report[i]=self.df[i]
         
@@ -161,14 +149,11 @@ class ReportCalculation:
             if key in self.direct:
                     if value in self.df.columns:
                         self.report[key] = self.df[value]
-                        #insert data from purchase report df to combined df
                         self.combine_report[key]=self.df[value]
 
             if key in self.equation:
-                #for i in sorted(self.combine_report.columns, key=len,reverse=True):
                 sorted_cols = sorted(list(self.combine_report.columns), key=len, reverse=True)
                 escaped_cols = [re.escape(col) for col in sorted_cols]
-                # Add regex for numbers: \d+(?:\.\d+)?  (matches 10, 3.5, etc.)
                 pattern = r'(' + '|'.join(escaped_cols) + r'|\+|\-|\*|\/|\(|\)|%|\d+(?:\.\d+)?)'
                 tokens = [t.strip() for t in re.findall(pattern, value) if t.strip()]
                 tokens = ' '.join([f"pd.to_numeric(self.combine_report['{i}'], errors='coerce')" if i in list(self.combine_report.columns) else i for i in tokens])
@@ -180,7 +165,7 @@ class ReportCalculation:
 
             if key == self.gst_mapp:
                     self.findGst()
-  
+
         print("-----------------calculation end---------------------------------")
     
 

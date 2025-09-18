@@ -94,11 +94,11 @@
  
       <svg xmlns="http://www.w3.org/2000/svg" width="300" height="66" viewBox="0 0 300 66" aria-hidden="true" role="img">
         <!-- icon -->
-        <rect x="6" y="6" width="44" height="44" rx="8" fill="#0b1220"/>
+        <rect x="6" y="6" width="44" height="44" rx="8" fill="#ffffff"/>
         <path d="M18 18h22M18 26h16M18 34h10" stroke="#06b6d4" stroke-width="2" stroke-linecap="round"/>
         <path d="M38 32l6 6 10-12" stroke="#7c3aed" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
         <!-- text -->
-        <g transform="translate(64,36)" fill="#e6eef6" font-family="Inter, Roboto, system-ui, -apple-system" font-weight="700">
+        <g transform="translate(64,36)" fill="#ffffff" font-family="Inter, Roboto, system-ui, -apple-system" font-weight="700">
           <text x="0" y="-8" font-size="24">Invoice Automation</text>
           <text x="0" y="12" font-size="12" fill="#9fb8c6" font-weight="600">Generating Purchase Report </text>
         </g>
@@ -130,8 +130,7 @@
           <i class="fas fa-trash"></i> Delete Invoice
         </button>
 
-        <button :class="{active: activeTab==='settings'}" @click="activeTab='settings'"
-          @mouseover="activeTab='settings'">
+        <button :class="{active: activeTab==='settings'}" @click="activeTab='settings'">
           <i class="fas fa-cog"></i> Settings
         </button>
       </div>
@@ -358,35 +357,34 @@
             });
           } else {
             try {
-              alert(this.report_month);
-              const baseUrl = window.location.origin;
-              const response = await axios.post(
-                `${baseUrl}/monthReportGenerate/`,
-                new URLSearchParams({ report_month: this.report_month }),
-                {
-                  headers: {
-                    "Content-Type": "application/x-www-form-urlencoded"
+                const baseUrl = window.location.origin;
+                const response = await axios.post(
+                  `${baseUrl}/monthReportGenerate/`,
+                  new URLSearchParams({ report_month: this.report_month }),
+                  {
+                    headers: {
+                      "Content-Type": "application/x-www-form-urlencoded"
+                    }
                   }
-                }
-              );
-            } catch (error) {
-
-            }
-            if (response.data.status === 'success') {
-              Swal.fire({
-                icon: "success",
-                title: "Upload Complete",
-                text: "Purchase Report Created Successfull!",
-                confirmButtonColor: "#3b82f6"
-              });
-            } else {
-              Swal.fire({
-                icon: "error",
-                title: "Failed",
-                text: response.data.message || "failed to Create Purchase Report!",
-                confirmButtonColor: "#ef4444"
-              });
-            }
+                );
+                if (response.data.status === 'success') {
+                Swal.fire({
+                  icon: "success",
+                  title: "Upload Complete",
+                  text: "Purchase Report Created Successfull!",
+                  confirmButtonColor: "#3b82f6"
+                });
+              } else {
+                Swal.fire({
+                  icon: "error",
+                  title: "Failed",
+                  text: response.data.message || "failed to Create Purchase Report!",
+                  confirmButtonColor: "#ef4444"
+                });
+              }
+              } catch (error) {
+                
+              }
           }
         },
         // upload_pdf.html methods=======================================
@@ -568,10 +566,19 @@
                   text: "Your Excel files were uploaded successfully",
                   confirmButtonColor: "#3b82f6"
                 });
-              } else {
+              }
+              else if(response.data.status ==="file exist"){
                 Swal.fire({
                   icon: "error",
-                  title: "Failed",
+                  title: "file exist error!",
+                  text: response.data.message || "Upload failed",
+                  confirmButtonColor: "#ef4444"
+                });
+              }
+              else if(response.data.status ==="not_found"){
+                Swal.fire({
+                  icon: "error",
+                  title: "supplier not found !",
                   text: response.data.message || "Upload failed",
                   confirmButtonColor: "#ef4444"
                 });
@@ -780,7 +787,6 @@
                   this.supplier_edit_case=this.supplier_for_col_add;
                   this.supplier_edit_case_change();
                 } 
-
           }
           catch (error) {
             alert("error");
@@ -814,7 +820,6 @@
           if (response.data.status === 'success') {
             alert("Columns updated successfully!");
           }
-
         },
 
         async supplierDelete() {
@@ -832,7 +837,6 @@
           if (!confirmed) {
             return;
           }
-
           const baseUrl = window.location.origin;
           const response = await axios.post(`${baseUrl}/delete_supplier/`, new URLSearchParams({ supplier_id: this.supplier_delete }),
             {
@@ -874,7 +878,6 @@
             const baseUrl = window.location.origin;
             const response = await axios.get(`${baseUrl}/get_suppliers/`);
             this.suppliers = response.data;
-
           } catch (error) {
             console.error("Error fetching suppliers:", error);
           }

@@ -220,17 +220,17 @@ class JohnMcGrath:
         def pad(lst):
             return lst + [""] * (max_len - len(lst))
         df1=pd.DataFrame({
-            "filename":[f'{filename}' for i  in range(len(pad(location)))],
-            "supplier":[f'{supplier_name}' for i in range(len(pad(location)))],
-            "maildate":[maildata for i in range(len(pad(location)))],
+            "Invoice":[f'{filename}' for i  in range(len(pad(location)))],
+            "Supplier":[f'{supplier_name}' for i in range(len(pad(location)))],
+            "Date":[maildata for i in range(len(pad(location)))],
             "location": pad(location),
             "Part Number": pad(part_Number),
             "Description":pad(description),
-            "Quantity Ordered":pad(ordered),
-            "Quantity Supplied":pad(supplied),
+            "QTY ORD":pad(ordered),
+            "QTY Supplied":pad(supplied),
             "Unit List":pad(unit_List),
-            "unit_Net":pad(unit_Net),
-            "GST_Code":pad(GST_Code),
+            "Unit Net":pad(unit_Net),
+            "GST Code":pad(GST_Code),
             "Total":pad(total)
         },dtype=str)
         name, ext = os.path.splitext(filename)

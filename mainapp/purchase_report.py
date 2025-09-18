@@ -53,7 +53,7 @@ class PurchaseReportClass:
                         time.sleep(delay)
                 else:
                     print(f" Skipped locked file: {src_file}")
-
+    
     def monthlyPurchaseReport(self,file_list=None,year=None,month=None):
         all_dfs = []
         for f in file_list:
@@ -69,31 +69,58 @@ class PurchaseReportClass:
         ws = self.wb.active
         headers = [cell.value for cell in ws[4]]
         start_row = ws.max_row + 1
+
         for r_idx, row in enumerate(self.final_df.to_dict('records'), start=start_row):
             for c_idx, header in enumerate(headers, start=1):
                 if header == "S.NO":
                     ws.cell(row=r_idx, column=c_idx, value=r_idx - 4)
                 elif header in row:
                     ws.cell(row=r_idx, column=c_idx, value=row[header])
+
         folder_path= os.path.join('media',year,month)
         file_path = os.path.join(folder_path, f"PurchaseReport{month}_{year}.xlsx")
         self.wb.save(file_path)
         self.wb.close()
-
+    
     def autoSelectingSupplier(self,df=None):
         self.nn=NewSupplier.objects.all()
         self.supplier_name=None
+        self.df_col = df.columns.tolist()
         for i in self.nn:
-            self.supplier_col= i.supplier_col
-            self.df_col = df.columns.tolist()
-            equal = set(x.lower() for x in self.df_col) == set(x.lower() for x in self.supplier_col)
+            equal = set(x.lower() for x in self.df_col) == set(x.lower() for x in i.supplier_col)
             if equal:
                 self.supplier_name=i.supplier_name
-                break
             else:
                 continue
-        
         return self.supplier_name
+    
+    def autoSelectingSupplierByRow(self,df=None):
+        self.df=df
+        self.first_row = df.iloc[0,:].tolist()
+        self.first_row = [str(x) if pd.isna(x) else x for x in self.first_row]
+        self.supplier_name_list = list(NewSupplier.objects.values_list('supplier_name', flat=True))
+        self.suppliername = next((item for item in self.first_row if item in self.supplier_name_list), None)
+        self.exist = self.suppliername is not None
+        self.col = df.columns.tolist()
+        self.report_col=default_mapping().keys()
+        common_items = list(set(self.col) & set(self.report_col))
+        for i in common_items:
+            self.df = self.df.drop(columns=[i])
+        return self.suppliername,self.df
+    
+    
+
+        
+
+        
+
+
+        
+
+
+        
+
+
           
 
             

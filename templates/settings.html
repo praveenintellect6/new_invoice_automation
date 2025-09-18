@@ -275,7 +275,7 @@
         </div>
     </div>
 
-    <div class="flex justify-between items-center w-full" v-for="(row, index) in edit_column_list" :key="index">
+    <!-- <div class="flex justify-between items-center w-full" v-for="(row, index) in edit_column_list" :key="index">
         <div class="flex-1 text-center p-2 m-1 ">
             <input type="text" v-model="row[0]"
                 class="w-64 bg-gray-100 px-4 py-2 rounded-lg text-gray-700 font-medium focus:outline-none focus:ring-2 focus:ring-blue-500" />
@@ -300,7 +300,48 @@
                         Remove this case
             </span>
         </div>
-    </div>
+    </div> -->
+    <table class="w-full border-collapse border border-gray-300 text-center">
+  <thead>
+    <!-- <tr class="bg-gray-100">
+      <th class="border border-gray-300 p-2">Column 1</th>
+      <th class="border border-gray-300 p-2">Column 2</th>
+      <th class="border border-gray-300 p-2">Column 3</th>
+      <th class="border border-gray-300 p-2">Actions</th>
+    </tr> -->
+  </thead>
+  <tbody>
+    <tr v-for="(row, index) in edit_column_list" :key="index">
+      <!-- Column 1 -->
+      <td class="border border-gray-300 p-2">
+        <input type="text" v-model="row[0]"
+          class="w-64 bg-gray-100 px-4 py-2 rounded-lg text-gray-700 font-medium focus:outline-none focus:ring-2 focus:ring-blue-500" />
+        <span v-if="row[1] && row[0]" class="ml-3 material-symbols-outlined">arrow_forward</span>
+      </td>
+
+      <!-- Column 2 -->
+      <td class="border border-gray-300 p-2">
+        <input type="text" v-model="row[1]"
+          class="w-64 bg-gray-100 px-4 py-2 rounded-lg text-gray-700 font-medium focus:outline-none focus:ring-2 focus:ring-blue-500" />
+        <span v-if="row[1] && row[2]" style="font-size:30px;vertical-align:middle;" class="ml-3">=</span>
+      </td>
+
+      <!-- Column 3 -->
+      <td class="border border-gray-300 p-2">
+        <input type="text" v-model="row[2]"
+          class="w-64 bg-gray-100 px-4 py-2 rounded-lg text-gray-700 font-medium focus:outline-none focus:ring-2 focus:ring-blue-500" />
+      </td>
+
+      <!-- Actions -->
+      <td class="border border-gray-300 p-2 relative group">
+        <button @click="remove_add_columns(index)" class="text-red-600 hover:text-red-800 font-bold">✕</button>
+        <span class="absolute bottom-full mb-1 hidden group-hover:block bg-gray-800 text-white text-xs rounded py-1 px-2 whitespace-nowrap">
+          Remove this case
+        </span>
+      </td>
+    </tr>
+  </tbody>
+</table>
 
     <div class="flex justify-between items-center w-full">
         <div class="flex-1 text-center p-2 m-1 "></div>
@@ -317,5 +358,6 @@
 <div class="mt-5 justify-between items-center w-full">
     <span></span>
 </div>
+
 
    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" />

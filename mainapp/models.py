@@ -2,8 +2,8 @@ from django.db import models
 
 def default_mapping():
     return {
-        "Filename": "",
-        "Supplier": "",
+        "FILE NAME": "",
+        "SUPPLIER": "",
         "DATE": "",
         "PART DESCRIPTION": "",
         "PART NUMBER": "",

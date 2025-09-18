@@ -17,6 +17,9 @@ import time
 
 
 
+# ss=NewSupplier.objects.filter(supplier_name="HSY").first()
+# print(ss.supplier_col)
+
 @csrf_exempt
 def delete_invoice_file(request):
    if request.method == "POST":
@@ -88,6 +91,7 @@ def monthReportGenerate(request):
                     f for f in os.listdir(folder_path)
                     if f.lower().endswith(('.xlsx', '.xls')) and os.path.isfile(os.path.join(folder_path, f))
                 ]
+
             for i in excel_files:
                 os.remove(os.path.join(folder_path, i))
 
@@ -99,10 +103,10 @@ def monthReportGenerate(request):
                 for j in files:
                     if "PurchaseReport" in j:
                         file_list.append(os.path.join(file_path,j))   
+
             pp=PurchaseReportClass()
             pp.monthlyPurchaseReport(file_list=file_list,year=year,month=month_name)
             PurchaseReportClass.copy_folder_contents(source_folder=folder_path)
-
             return JsonResponse({"status": "success"})
         except Exception as e:
             return JsonResponse({"status": "error", "message": str(e)}, status=500)
@@ -135,7 +139,6 @@ def submit_pdf_files(request):
                     print(f" Failed to process : {e}")
                     return JsonResponse({"status": "error"})      
             PurchaseReportClass.copy_folder_contents(source_folder=folder_path)
-           
         return JsonResponse({"status": "success"})
 
 @csrf_exempt
@@ -192,18 +195,22 @@ def submit_excel_files(request):
         for f in files:
             df=pd.read_excel(f, dtype=str)
             ss=PurchaseReportClass()
-            supplier_name=ss.autoSelectingSupplier(df=df)
-            # supplier_name = df['supplier'].iloc[0]
-         
+            supplier_name,df=ss.autoSelectingSupplierByRow(df=df)
+
+            if supplier_name == None :
+                print("supplier not found",supplier_name)
+                return JsonResponse({"status": "not_found"})
             exist = NewSupplier.objects.filter(supplier_name=supplier_name).exists()
+
             if not exist :
                 print("supplier not found",supplier_name)
-                break
+                return JsonResponse({"status": "not_found"})
             else:
                 supp = NewSupplier.objects.filter(supplier_name=supplier_name).first()
                 folder_path = PurchaseReportClass().createFolderByDate(excel_date)
                 if os.path.exists(os.path.join(folder_path, f.name)):
                     print("file exist")
+                    return JsonResponse({"status": "file exist"})
                 else:
                     rr = ReportCalculation(df=df,file=folder_path,filename=f.name,excel_date=excel_date,supp=supp) 
                     rr.MappToPurchaseReport()
@@ -212,6 +219,7 @@ def submit_excel_files(request):
                     with open(save_path, "wb+") as destination:
                         for chunk in f.chunks():
                             destination.write(chunk)
+
             folder_path = PurchaseReportClass().createFolderByDate(excel_date)
             PurchaseReportClass.copy_folder_contents(source_folder=folder_path)
 
